@@ -1,5 +1,5 @@
 import pygame
-#import driver
+import driver
 import time
 
 # standard lsystem stuff
@@ -124,6 +124,7 @@ weave_width = 60
 weave_height = 40
 
 def draw_weave(time,kernel,warp_yarn,weft_yarn):
+    if warp_yarn=="" or weft_yarn=="": return
     for y in range(0,weave_height):
         rect.top=y*cell_spacing
         for x in range(0,weave_width):
@@ -143,8 +144,8 @@ def draw_weave(time,kernel,warp_yarn,weft_yarn):
                     screen.blit(weft_sprite, rect)
 
 emu = [2,0,0,0,0,0,0,0,
-       2,4,0,0,0,0,0,0,
-       4,4,8,2,0,0,0,0,
+       2,0,0,0,0,0,0,0,
+       0,0,8,2,0,0,0,0,
        0,0,0,0,0,0,0,0]
 
 
@@ -158,6 +159,7 @@ print(driver.read_all())
 
 while 1:
     yarn = lsys_from_blocks(driver.read_all())
+    #yarn = lsys_from_blocks(emu)
     print(yarn)
     screen.fill([0,0,0])
     draw_weave(frame,k,yarn,yarn)
