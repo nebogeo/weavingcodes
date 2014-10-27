@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>dyadic calculator</title>
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <body bgcolor="#777">
+      <h1>A dyadic device</h1>
+      <div>
+
+        <!--<canvas class="canvas" id="webgl-canvas" width="640" height="480"></canvas> -->
+
+        <canvas class="canvas" id="canvas" width="480" height="480" style="float:left"></canvas>
+        <div id="liftplan" style="float:left"/>
+        <br/>
+        <div id="heddles" style="margin-bottom:2em;"/>
+
+
+        <div style="display:none;">
+          <h2>output</h2>
+          <pre><div id="output"></div></pre>
+
+          <h2>compiler</h2>
+          <pre><div id="compiled"></div></pre>
+        </div>
+      </div>
+    </body>
+
+
+
+    <script src="js/jquery-1.9.1.min.js"></script>
+    <script src="js/glMatrix.js"></script>
+    <script src="js/ditto.js"></script>
+    <script>init(["scm/game.jscm"]);</script>
+
+</body>
+</html>

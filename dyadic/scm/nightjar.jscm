@@ -1,0 +1,775 @@
+;; -*- mode: scheme; -*-
+;; Little Canvas Engine Copyright (C) 2013 Dave Griffiths
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU Affero General Public License as
+;; published by the Free Software Foundation, either version 3 of the
+;; License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU Affero General Public License for more details.
+;;
+;; You should have received a copy of the GNU Affero General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;; a simple 2D game engine for making fast html5 canvas games
+
+;; --------------------------------------------
+;; server comms
+
+(js "$.ajaxSetup ({ cache: false })")
+
+  ;; hack together a js object to send
+(define (build-url-args args)
+  (foldl
+   (lambda (i r) (js "r[i[0]]=i[1]") r)
+   (js "{}") args))
+
+(define (server-call name argsl)
+  (let ((args (build-url-args argsl)))
+    (set! args.fn name)
+    (let ((v ($.get "egglab" args)))
+      (v.fail (lambda (jqXHR textStatus errorThrown)
+                (msg textStatus)
+                (msg errorThrown))))))
+
+(define (server-call-mutate name argsl f)
+  (let ((args (build-url-args argsl)))
+    (set! args.fn name)
+    (let ((v ($.get "egglab" args (mutate-game f))))
+      (v.fail (lambda (jqXHR textStatus errorThrown)
+                (msg textStatus)
+                (msg errorThrown))))))
+
+;; --------------------------------------------
+;; basics
+
+(define (transform x y r s) (list x y r s))
+
+(define (transform-x t) (list-ref t 0))
+(define (transform-y t) (list-ref t 1))
+
+(define (time-to-seconds t)
+  (/ (Math.floor (/ t 10)) 100))
+
+(define (play-sound sound)
+ (let ((snd (new Audio sound)))
+    (snd.play)))
+
+(define image-lib ())
+
+(define (load-image-mutate fn filename)
+  (let ((image (js "new Image()")))
+    (set! image.onload
+          (mutate-game
+           (lambda (c)
+             (set! image-lib (cons (list filename image) image-lib))
+             (fn c))))
+    (set! image.src (+ "images/" filename))))
+
+(define (load-image! fn finished images)
+  (let ((image (js "new Image()")))
+    (set! image.onerror
+          (lambda ()
+            (msg (+ "error loading:" fn))))
+    (set! image.onload
+          (lambda ()
+            (set! image-lib (cons (list fn image) image-lib))
+            (ctx.clearRect 0 0 screen-width screen-height)
+            (centre-text ctx "Loading..." 0 240)
+            (centre-text
+             ctx
+             (+ "" (Math.floor (* (/ (length image-lib)
+                                     (length images)) 100)) "%") 0 340)
+            (when (eq? (length image-lib)
+                       (length images))
+                  (finished))))
+    (set! image.src (+ "images/" fn))))
+
+(define (load-images! l finished)
+  (for-each
+   (lambda (fn)
+     (load-image! fn finished l))
+   l))
+
+(define (inner_find-image fn l)
+  (cond
+   ((null? l) #f)
+   ((eq? (car (car l)) fn) (cadr (car l)))
+   (else (inner_find-image fn (cdr l)))))
+
+(define (find-image fn)
+  (inner_find-image fn image-lib))
+
+;; ----------------------------------------
+;; drawing helpers
+
+(define (fill-centre-text ctx txt x y)
+  (let ((m (ctx.measureText txt)))
+    (ctx.fillText txt (- x (/ m.width 2)) y)))
+
+(define (centre-text ctx txt x y)
+  (let ((m (ctx.measureText txt)))
+    (ctx.fillText txt (+ x (- (/ screen-width 2) (/ m.width 2))) y)))
+
+(define (wrap-text ctx text x y max-width line-height)
+  (define (wrap-text-inner words line y)
+    (cond
+     ((null? words)
+      (centre-text ctx line x y))
+     (else
+      (let ((test-line (+ line (car words) " ")))
+        (let ((metrics (ctx.measureText test-line)))
+          (cond ((> metrics.width max-width)
+                 (centre-text ctx line x y)
+                 (wrap-text-inner (cdr words)
+                                  (+ (car words) " ")
+                                  (+ y line-height)))
+                (else
+                 (wrap-text-inner
+                  (cdr words) test-line y))))))))
+  (wrap-text-inner (text.split " ") "" y))
+
+(define (sprite x y image timer)
+  (list x y image timer))
+
+(define (sprite-x s) (list-ref s 0))
+(define (sprite-y s) (list-ref s 1))
+(define (sprite-modify-x s v) (list-replace s 0 v))
+(define (sprite-modify-y s v) (list-replace s 1 v))
+(define (sprite-image s) (list-ref s 2))
+(define (sprite-timer s) (list-ref s 3))
+
+(define (sprite-render ctx t s)
+  (when (< t (sprite-timer s))
+        (ctx.save)
+        (ctx.translate (sprite-x s) (sprite-y s))
+        (ctx.drawImage
+         (find-image (sprite-image s))
+         0 0)
+        (ctx.restore)))
+
+;; ----------------------------------------
+;; button stuff
+
+;; todo, replace buttons with draggables, and fix parenting etc
+
+(define (rect-button name x y w h jitter callback)
+      (list "rect-button" name x y w h
+            jitter callback #f (rndf)))
+
+(define (image-button name x y jitter drawable callback)
+  (list "image-button"
+        name
+        (- x (/ drawable.width 2))
+        (- y (/ drawable.height 2))
+        drawable.width
+        drawable.height
+        jitter callback drawable
+        (rndf)))
+
+(define (circle-button name x y r callback)
+  (list "circle-button" name x y r r #f callback #f (rndf)))
+
+(define (button-type b) (list-ref b 0))
+(define (button-name b) (list-ref b 1))
+(define (button-x b) (list-ref b 2))
+(define (button-y b) (list-ref b 3))
+(define (button-w b) (list-ref b 4))
+(define (button-r b) (list-ref b 4))
+(define (button-h b) (list-ref b 5))
+(define (button-jitter b) (list-ref b 6))
+(define (button-callback b) (list-ref b 7))
+(define (button-drawable b) (list-ref b 8))
+(define (button-offs b) (list-ref b 9))
+
+(define (dist-2d x1 y1 x2 y2)
+  (let ((x (- x2 x1))
+        (y (- y2 y1)))
+    (Math.sqrt (+ (* x x) (* y y)))))
+
+(define (in-rect? x y w h xx yy)
+  (and (> xx x)
+       (< xx (+ x w))
+       (> yy y)
+       (< yy (+ y h))))
+
+(define (in-circle? x y r xx yy)
+  (< (dist-2d xx yy x y) r))
+
+;; fluff for fancy text rendering
+
+(define (button-do-jittering b t)
+  (when (eq? (button-jitter b) "rotate")
+        (ctx.translate (/ (button-w b) 2)
+                       (/ (button-h b) 2))
+        (ctx.rotate (* 0.05 (Math.sin (+ (* (button-offs b) 10) (* t 0.01)))))
+        (ctx.translate (- 0 (/ (button-w b) 2))
+                       (- 0 (/ (button-h b) 2))))
+  (when (eq? (button-jitter b) "slidy")
+        (ctx.translate (* 2.5 (sin (+ (* (button-offs b) 10) (* t 0.004)))) 0)))
+
+
+(define (button-text-jumpy-render! b t)
+  (let ((m (ctx.measureText (button-name b)))
+        (cm 0)
+        (pos 0)
+        (txt (button-name b)))
+    (let ((ta (txt.split ""))
+          (x (- (/ (button-w b) 2) (/ m.width 2)))
+          (y (+ (/ (button-h b) 2) 5)))
+      (index-for-each
+       (lambda (i c)
+         (set! cm (ctx.measureText c))
+         (ctx.fillText c (+ x pos)
+                       (+ y (* 3 (sin (+ (* t 0.01) i)))))
+         (set! pos (+ pos cm.width)))
+       ta))))
+
+(define (to-hex c)
+  (let ((c (Math.floor (Math.abs c))))
+    (let ((hex (c.toString 16)))
+      (if (eq? hex.length 1)
+          (+ "0" hex)
+          hex))))
+
+(define (rgb-to-hex r g b)
+  (+ "#" (to-hex r) (to-hex g) (to-hex b)))
+
+(define (rgba-to-hex r g b a)
+  (+ "#" (to-hex r) (to-hex g) (to-hex b) (to-hex a)))
+
+(define (text-flashy-render ctx txt x y t)
+  (let ((m (ctx.measureText txt))
+        (cm 0)
+        (pos 0))
+    (let ((ta (txt.split "")))
+      (index-for-each
+       (lambda (i c)
+         (set! ctx.fillStyle (rgb-to-hex
+                              (* 256 (sin (+ (* t 0.001) i)))
+                              (* 256 (sin (+ (* t 0.003) i)))
+                              (* 256 (sin (+ (* t 0.004) i)))))
+         (set! cm (ctx.measureText c))
+         (set! pos (+ pos cm.width))
+         (ctx.fillText c (+ x pos) y))
+       ta))))
+
+(define (button-text-flashy-render! b t)
+  (let ((m (ctx.measureText (button-name b)))
+        (cm (ctx.measureText "w"))
+        (txt (button-name b))
+        (pos 0))
+    (let ((ta (txt.split ""))
+          (x (- (/ (button-w b) 2) (/ m.width 2)))
+          (y (+ (/ (button-h b) 2) 5)))
+      (index-for-each
+       (lambda (i c)
+         (set! ctx.fillStyle (rgb-to-hex
+                              (* 256 (sin (+ (* t 0.001) i)))
+                              (* 256 (sin (+ (* t 0.003) i)))
+                              (* 256 (sin (+ (* t 0.004) i)))))
+         (set! cm (ctx.measureText c))
+         (set! pos (+ pos cm.width))
+         (ctx.fillText c (+ x pos) y))
+       ta))))
+
+(define (button-text-render! b t)
+  (cond
+   ((eq? (button-jitter b) "jumpy") (button-text-jumpy-render! b t))
+   ((eq? (button-jitter b) "flashy") (button-text-flashy-render! b t))
+   (else
+    (let ((m (ctx.measureText (button-name b))))
+      (ctx.fillText
+       (button-name b)
+       (- (/ (button-w b) 2) (/ m.width 2))
+       (+ (/ (button-h b) 2) 5))))))
+
+
+(define (rect-button-update! b mx my c)
+  (if (in-rect? (button-x b) (button-y b)
+                (button-w b) (button-h b)
+                mx my)
+      (let ((fn (button-callback b)))
+        (list #t (fn c)))
+      (list #f c)))
+
+(define (circle-button-update! b mx my c)
+  (if (in-circle? (button-x b) (button-y b)
+                  (button-r b) mx my)
+      (let ((fn (button-callback b)))
+        (list #t (fn c)))
+      (list #f c)))
+
+(define (button-update! b mx my c)
+  (cond
+   ((eq? (button-type b) "rect-button")
+    (rect-button-update! b mx my c))
+   ((eq? (button-type b) "image-button")
+    (rect-button-update! b mx my c))
+   (else
+    (circle-button-update! b mx my c))))
+
+(define (rect-button-render! ctx t b)
+  (when #f
+        (ctx.save)
+        (ctx.translate (button-x b) (button-y b))
+        (button-do-jittering b t)
+        (set! ctx.strokeStyle "#fff")
+        (ctx.strokeRect
+         0 0 (button-w b) (button-h b))
+        (ctx.fillText (button-name b) (/ (button-w b) 2) (+ 20 (/ (button-h b) 2)))
+        (ctx.restore)
+        ))
+
+(define (image-button-render! ctx t b)
+  (ctx.save)
+  (ctx.translate (button-x b) (button-y b))
+  (button-do-jittering b t)
+  (ctx.drawImage
+   (button-drawable b)
+   0 0)
+  (button-text-render! b t)
+  (ctx.restore))
+
+(define (circle-button-render! ctx t b)
+  (ctx.beginPath)
+  (ctx.arc (button-x b) (button-y b)
+           (button-r b) 0 (* Math.PI 2) true)
+  (ctx.closePath)
+  (set! ctx.strokeStyle "#fff")
+  (ctx.stroke))
+
+(define (button-render! ctx t b)
+  (cond
+   ((eq? (button-type b) "rect-button")
+    (rect-button-render! ctx t b))
+   ((eq? (button-type b) "image-button")
+    (image-button-render! ctx t b))
+   (else
+    (circle-button-render! ctx t b))))
+
+;; ----------------------------------------
+
+(define (button-inner-update b mx my c)
+  (foldl
+   (lambda (b r)
+     (if (not (car r)) ;; if event not handled
+         (button-update! b mx my (cadr r))
+         (js "r")))
+   (list #f c)
+   b))
+
+(define (buttons-update b mx my c)
+  (let ((r (button-inner-update b mx my c)))
+    (cadr r)))
+
+(define (buttons-render! ctx t b)
+  (for-each
+   (lambda (b)
+     (button-render! ctx t b))
+   (reverse b)))
+
+;; ----------------------------------------
+;; button matrix
+
+
+
+;; ----------------------------------------
+;; draggable objects
+
+;; callback fires on mouse up
+(define (draggable id x y drawable callback)
+  (list (- x (/ drawable.width 2))
+        (- y (/ drawable.height 2))
+        drawable.width
+        drawable.height
+        drawable
+        #f
+        ()
+        callback
+        "normal"
+        id))
+
+(define (draggable-horizontal x y drawable callback)
+  (list (- x (/ drawable.width 2))
+        (- y (/ drawable.height 2))
+        drawable.width
+        drawable.height
+        drawable
+        #f
+        ()
+        callback
+        "horizontal"
+        0))
+
+(define (draggable-x b) (list-ref b 0))
+(define (draggable-modify-x b v) (list-replace b 0 v))
+(define (draggable-y b) (list-ref b 1))
+(define (draggable-modify-y b v) (list-replace b 1 v))
+(define (draggable-w b) (list-ref b 2))
+(define (draggable-h b) (list-ref b 3))
+(define (draggable-drawable b) (list-ref b 4))
+(define (draggable-state b) (list-ref b 5))
+(define (draggable-modify-state b v) (list-replace b 5 v))
+(define (draggable-children b) (list-ref b 6))
+(define (draggable-modify-children b v) (list-replace b 6 v))
+(define (draggable-callback b) (list-ref b 7))
+(define (draggable-type b) (list-ref b 8))
+(define (draggable-id b) (list-ref b 9))
+
+(define (draggable-inside? d x y)
+  (in-rect? (draggable-x d) (draggable-y d)
+            (draggable-w d) (draggable-h d) x y))
+
+(define (draggable-render! ctx t b)
+  (ctx.save)
+  (ctx.translate (draggable-x b) (draggable-y b))
+  (ctx.drawImage
+   (draggable-drawable b)
+   0 0)
+  (for-each
+   (lambda (child)
+     (draggable-render! ctx t child))
+   (draggable-children b))
+  (ctx.restore))
+
+;; clamp x coordinate
+(define (draggable-check-x b x)
+  (if (eq? (draggable-type b) "horizontal")
+      (if (> x 0) 0
+          (if (< x (- screen-width (draggable-w b)))
+              (- screen-width (draggable-w b))
+              x))
+      x))
+
+(define (draggable-move! b mx my dx dy)
+  (let ((drawable (draggable-drawable b)))
+    (draggable-modify-x
+     (draggable-modify-y
+      b (if (eq? (draggable-type b) "horizontal")
+            (draggable-y b)
+            (+ dy (draggable-y b))))
+     (draggable-check-x b (+ dx (draggable-x b))))))
+
+(define (draggables-update-children e mx my dx dy l)
+  (define found (js "false")) ;; giving up...
+  (let ((r (map
+            (lambda (d)
+              (if (not found)
+                  (let ((result (draggable-update d e mx my dx dy)))
+                    (set! found (car result))
+                    (cadr result))
+                  d))
+            l)))
+    (list found r)))
+
+
+;; returns a modified draggable
+;; includes updating all children, with early out
+(define (draggable-update b e mx my dx dy)
+  (let ((child-update (draggables-update-children
+                       e
+                       (- mx (draggable-x b))
+                       (- my (draggable-y b))
+                       dx dy
+                       (draggable-children b))))
+    (cond
+     ((eq? (car child-update) #t)
+      (list #t (draggable-modify-children b (cadr child-update))))
+     ((eq? e "down")
+      (if (in-rect? (draggable-x b) (draggable-y b)
+                    (draggable-w b) (draggable-h b)
+                    mx my)
+          (list #t (draggable-modify-state b #t))
+          (list #f b)))
+     ((and (eq? e "move") (draggable-state b))
+      (list #t (draggable-move! b mx my dx dy)))
+     ((and (eq? e "up") (draggable-state b))
+      (list #t (draggable-modify-state b #f)))
+     (else (list #f b)))))
+
+(define (draggables-update-list e mx my dx dy l)
+  (define found (js "false")) ;; giving up...
+  (map
+   (lambda (d)
+     (if (not found)
+         (let ((result (draggable-update d e mx my dx dy)))
+           (set! found (car result))
+           (cadr result))
+         d))
+   l))
+
+(define (draggables-update e mx my dx dy c)
+  (let ((c
+         (if (and (> (length (game-draggables c)) 0) (eq? e "up"))
+             (game-modify-draggables (draggables-check-ownership (game-draggables c)) c)
+             c)))
+  (game-modify-draggables
+   (draggables-update-list e mx my dx dy (game-draggables c)) c)))
+
+(define (draggables-render! ctx t b)
+  (for-each
+   (lambda (b)
+     (draggable-render! ctx t b))
+   b))
+
+;; fixup coords for position in parent
+(define (draggable-attach d p)
+  (let ((x (- (draggable-x d) (draggable-x p)))
+        (y (- (draggable-y d) (draggable-y p))))
+    (draggable-modify-x
+     (draggable-modify-y d y) x)))
+
+(define (draggable-in-list? d l)
+  (foldl
+   (lambda (dd r)
+     (if (and (not r) (eq? (draggable-drawable dd) (draggable-drawable d)))
+         #t r))
+   #f l))
+
+(define (draggable-remove-roots-in-car l)
+  (cons
+   (car l)
+   (filter
+    (lambda (d)
+      (not (draggable-in-list? d (draggable-children (car l)))))
+    (cdr l))))
+
+;; a simple drag-drop parenting arrangement
+;; check first draggable and add from remaining
+;; when inside
+(define (draggables-check-ownership l)
+  (msg (length l))
+  (msg (length (draggable-children (car l))))
+  (draggable-remove-roots-in-car
+   (cons
+    (draggable-modify-children
+     (car l)
+     (append
+      (draggable-children (car l))
+      (map
+       (lambda (attached)
+         (draggable-attach attached (car l)))
+       (filter
+        (lambda (c)
+          (draggable-inside?
+           (car l) (draggable-x c)
+           (draggable-y c)))
+        (cdr l)))))
+    (cdr l))))
+
+;; ----------------------------------------
+;; draw a clock
+
+(define (stroke-clock ctx x y time max-time)
+  (ctx.beginPath)
+  (ctx.moveTo x y)
+  (ctx.arc
+   x y 50 (* Math.PI -0.5)
+   (+ (* Math.PI -0.5)
+      (/ (* time Math.PI 2) max-time))
+   true)
+  (ctx.closePath))
+
+(define (nightjar-draw-clock ctx time max-time)
+  (set! ctx.lineWidth 4)
+  (set! ctx.strokeStyle "#000")
+  (stroke-clock ctx 74 74 time max-time)
+  (ctx.stroke)
+
+  (stroke-clock ctx 70 70 time max-time)
+  (set! ctx.fillStyle "rgba(1, 0, 0, 0.7)")
+  (ctx.fill)
+  (set! ctx.lineWidth 4)
+  (set! ctx.strokeStyle "#f00")
+  (ctx.stroke)
+
+  (set! ctx.lineWidth 1)
+  (set! ctx.fillStyle "#fff")
+  (set! ctx.font "normal 30pt gnuolane")
+  (ctx.fillText (Math.floor (- max-time time)) 54 110))
+
+;; ----------------------------------------
+;; main game structure
+
+(define (make-new-game)
+  (list 0 (lambda (ctx) 0) (lambda (t c) c)
+        () () 0 0 () (list 0 0) (lambda (e c) c) 0))
+
+(define (game-time g) (list-ref g 0))
+(define (game-modify-time v g) (list-replace g 0 v))
+(define (game-render g) (list-ref g 1))
+(define (game-modify-render v g) (list-replace g 1 v))
+(define (game-update g) (list-ref g 2))
+(define (game-modify-update v g) (list-replace g 2 v))
+(define (game-buttons g) (list-ref g 3))
+(define (game-modify-buttons v g) (list-replace g 3 v))
+(define (game-draggables g) (list-ref g 4))
+(define (game-modify-draggables v g) (list-replace g 4 v))
+(define (game-data g) (list-ref g 5))
+(define (game-modify-data fn g) (list-replace g 5 (fn (game-data g))))
+(define (game-mx g) (list-ref g 6))
+(define (game-modify-mx v g) (list-replace g 6 v))
+(define (game-my g) (list-ref g 7))
+(define (game-modify-my v g) (list-replace g 7 v))
+(define (game-world-offset g) (list-ref g 8))
+(define (game-modify-world-offset g v) (list-replace g 8 v))
+(define (game-mouse-hook g) (list-ref g 9))
+(define (game-modify-mouse-hook v g) (list-replace g 9 v))
+(define (game-time-delta g) (list-ref g 10))
+(define (game-modify-time-delta v g) (list-replace g 10 v))
+
+(define (game-modify-mouse g x y)
+  (game-modify-mx
+   x (game-modify-my y g)))
+
+(define (game-mouse-down g mx my)
+  (let ((fn (game-mouse-hook g)))
+    (fn "down" (draggables-update
+                "down" mx my 0 0
+                (buttons-update (game-buttons g) mx my
+                                (game-modify-mouse g mx my))))))
+
+(define (game-mouse-move g mx my)
+  (game-modify-mouse
+   (draggables-update
+    "move" mx my
+    (- mx (game-mx g))
+    (- my (game-my g)) g) mx my))
+
+(define (game-mouse-up g mx my)
+  (let ((fn (game-mouse-hook g)))
+    (fn "up"
+        (game-modify-mouse
+         (draggables-update
+          "up" mx my
+          (- mx (game-mx g))
+          (- my (game-my g)) g) mx my))))
+
+;; ----------------------------------------
+
+(define (top-update-game t game)
+  (let ((fn (game-update game)))
+    (set! game
+          (fn t (game-modify-time
+                 t (game-modify-time-delta
+                    (* (- t (game-time game)) 0.0001) game))))))
+
+(define (top-render-game ctx game)
+  (let ((fn (game-render game)))
+    (fn ctx)))
+
+(define (top-render)
+  (when (not (eq? game 0))
+        (ctx.clearRect 0 0 screen-width screen-height)
+        (let ((t (- (js "new Date()") load-time)))
+          (set! ctx.fillStyle "#fff");
+;;          (ctx.fillText (+ "Time is: " t) 10 750)
+          (top-update-game t game)
+
+          (ctx.save)
+          (top-render-game ctx game)
+          (ctx.translate (car (game-world-offset game))
+                         (cadr (game-world-offset game)))
+
+          (buttons-render! ctx t (game-buttons game))
+          (draggables-render! ctx t (game-draggables game))
+          (ctx.restore))
+        (requestAnimFrame top-render ctx)))
+
+(define game 0)
+
+(define (mouse-from-event g canvas e)
+  (let ((rect (canvas.getBoundingClientRect)))
+    (let ((sx (/ rect.width screen-width))
+          (sy (/ rect.height screen-height)))
+      (list (- (/ (- e.clientX rect.left) sx)
+               (car (game-world-offset g)))
+            (- (/ (- e.clientY rect.top) sy)
+               (cadr (game-world-offset g)))))))
+
+(define (touch-from-event g canvas e)
+  (let ((e (car e.targetTouches)))
+    (mouse-from-event g canvas e)))
+
+(define (start-game canvas ctx)
+  (ctx.clearRect 0 0 screen-width screen-height)
+
+  (canvas.addEventListener
+   "mousedown"
+   (lambda (e)
+     (let ((m (mouse-from-event game canvas e)))
+       (set! game (game-mouse-down game (car m) (cadr m))))))
+
+  (canvas.addEventListener
+   "touchstart"
+   (lambda (e)
+     (let ((m (touch-from-event game canvas e)))
+       (set! game (game-mouse-down game (car m) (cadr m))))))
+
+  (canvas.addEventListener
+   "mousemove"
+   (lambda (e)
+     (let ((m (mouse-from-event game canvas e)))
+       (set! game (game-mouse-move game (car m) (cadr m))))))
+
+  (canvas.addEventListener
+   "touchmove"
+   (lambda (e)
+     (e.preventDefault)
+     (let ((m (touch-from-event game canvas e)))
+       (set! game (game-mouse-move game (car m) (cadr m))))))
+
+  (canvas.addEventListener
+   "mouseup"
+   (lambda (e)
+     (let ((m (mouse-from-event game canvas e)))
+       (set! game (game-mouse-up game (car m) (cadr m))))))
+
+  (canvas.addEventListener
+   "touchend" (lambda (e) (set! game (game-mouse-up game 0 0))))
+
+  (canvas.addEventListener
+   "touchcancel" (lambda (e) (set! game (game-mouse-up game 0 0))))
+
+  ;; todo - pass in game specific func
+  (set! game (nightjar-intro (make-new-game)))
+  (requestAnimFrame top-render ctx))
+
+(define (mutate-game f)
+  (lambda (data)
+    (set! game (f game data))))
+
+;; drawing utils (remove?)
+
+(define (nightjar-heading ctx txt)
+  (set! ctx.fillStyle "#000")
+  (ctx.save)
+  (ctx.translate 4 4)
+  (wrap-text ctx txt 0 200 1000 100)
+  (ctx.restore)
+  (set! ctx.fillStyle "#fff")
+  (wrap-text ctx txt 0 200 1000 100))
+
+(define (nightjar-text ctx txt)
+  (wrap-text ctx txt 0 400 1000 50))
+
+(define (nightjar-all-text ctx txt)
+  (wrap-text ctx txt 0 200 1000 75))
+
+
+;; ----------------------------------------
+
+(define canvas (document.getElementById "canvas"))
+(define ctx (canvas.getContext "2d"))
+
+(define screen-width 1237)
+(define screen-height 820)
+
+(define load-time (js "new Date()"))
+
+(set! ctx.fillStyle "#fff")
+(set! ctx.strokeStyle "#000")

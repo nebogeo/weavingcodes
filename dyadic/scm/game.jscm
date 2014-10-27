@@ -1,0 +1,151 @@
+;; -*- mode: scheme; -*-
+;; Egglab Copyright (C) 2013 Dave Griffiths
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU Affero General Public License as
+;; published by the Free Software Foundation, either version 3 of the
+;; License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU Affero General Public License for more details.
+;;
+;; You should have received a copy of the GNU Affero General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(load "scm/weaving.scm")
+(load "scm/loom.scm")
+
+(define l (loom
+           (list
+            (repeat (list 1 0 0 0 1 1 0 0 0 0 0 0 0 0) 1)
+            (repeat (list 0 1 0 0 0 0 1 1 0 0 0 0 0 1) 1)
+            (repeat (list 0 0 1 0 0 0 0 0 1 1 0 0 1 0) 1)
+            (repeat (list 0 0 0 1 0 0 0 0 0 0 1 1 0 0) 1))
+           (list
+            (list 0 0 0 1)
+            (list 0 0 1 0)
+            (list 0 0 1 1)
+            (list 0 1 0 0)
+            (list 0 1 0 1)
+            (list 0 1 1 0)
+            (list 0 1 1 1)
+            (list 1 0 0 0)
+            (list 1 0 0 1)
+            (list 1 0 1 0)
+            (list 1 0 1 1)
+            (list 1 1 0 0)
+            (list 1 1 0 1)
+            (list 1 1 1 0)
+            )
+           (repeat (list "fat") 27)))
+
+(define weave (loom-weave l (repeat (list "thin" "thin" "thin" "thin" "thin" "thin") 2) 0))
+
+(define (build-line id p v)
+  (index-for-each
+   (lambda (i v)
+     (if (zero? v)
+         (p.append (string-append "<input id='" id "-" (+ i 1) "' type='checkbox' />"))
+         (p.append (string-append "<input id='" id "-" (+ i 1) "' type='checkbox' checked=true />"))))
+   v))
+
+
+(define (build-interface)
+  (let ((c ($ "#heddles") ))
+    (c.append "Heddles<br/>")
+    (build-line "heddle-1" c (list 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0)) (c.append "<br/>")
+    (build-line "heddle-2" c (list 0 1 0 0 0 1 0 1 0 0 0 1 0 1 0 0 0 1 0 1 0 0 0 1)) (c.append "<br/>")
+    (build-line "heddle-3" c (list 0 0 1 0 1 0 0 0 1 0 1 0 0 0 1 0 1 0 0 0 1 0 1 0)) (c.append "<br/>")
+    (build-line "heddle-4" c (list 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0)) (c.append "<br/>"))
+  (let ((c ($ "#liftplan") ))
+    (c.append "Lift plan<br/>")
+    (build-line "lift-1" c (list 1 0 1 0)) (c.append "<br/>")
+    (build-line "lift-2" c (list 0 1 0 1)) (c.append "<br/>")
+    (build-line "lift-3" c (list 1 0 1 0)) (c.append "<br/>")
+    (build-line "lift-4" c (list 0 1 0 1)) (c.append "<br/>")
+    (build-line "lift-5" c (list 1 0 1 1)) (c.append "<br/>")
+    (build-line "lift-6" c (list 0 1 1 0)) (c.append "<br/>")
+    (build-line "lift-7" c (list 1 1 0 0)) (c.append "<br/>")
+    (build-line "lift-8" c (list 1 0 0 0)) (c.append "<br/>")
+    (build-line "lift-9" c (list 0 0 0 1)) (c.append "<br/>")
+    (build-line "lift-10" c (list 0 0 1 1)) (c.append "<br/>")
+    (build-line "lift-11" c (list 0 1 1 0)) (c.append "<br/>")
+    (build-line "lift-12" c (list 1 1 0 0)) (c.append "<br/>")
+    (build-line "lift-13" c (list 1 1 0 0)) (c.append "<br/>")
+    (build-line "lift-14" c (list 1 1 0 0)) (c.append "<br/>")
+    (build-line "lift-15" c (list 0 0 1 1)) (c.append "<br/>")
+    (build-line "lift-16" c (list 0 0 1 1)) (c.append "<br/>")
+    (build-line "lift-17" c (list 1 1 0 0)) (c.append "<br/>")
+    (build-line "lift-18" c (list 1 1 0 0)) (c.append "<br/>")
+    (build-line "lift-19" c (list 0 0 1 1)) (c.append "<br/>")
+    (build-line "lift-20" c (list 0 0 1 1)) (c.append "<br/>")
+
+    ))
+
+(define (read-line id c)
+  (cond
+   ((zero? c) ())
+   (else
+    (let ((w ($ (string-append "#" id "-" c))))
+      (append (read-line id (- c 1)) (if (js "w[0].checked") 1 0))))))
+
+(define (update)
+  (set! l (loom
+           (list
+            (read-line "heddle-1" 24)
+            (read-line "heddle-2" 24)
+            (read-line "heddle-3" 24)
+            (read-line "heddle-4" 24))
+
+           (build-list
+            20 (lambda (i)
+                 (read-line (string-append "lift-" (+ i 1)) 4)))
+
+           (repeat (list "fat") 27)))
+  (set! weave
+        (loom-weave l (repeat (list "fat-dark") 30) 0))
+
+  )
+
+(define update-tick 0)
+
+(define (nightjar-intro c)
+  (build-interface)
+
+  (game-modify-render
+   (lambda (ctx)
+     (set! update-tick (+ (* 100 (game-time-delta c)) update-tick))
+     (when (> update-tick 5)
+           (set! update-tick 0)
+           (update))
+
+     (set! ctx.font "normal 30pt amatic")
+     (draw-weave ctx 20 20 weave)
+     (set! ctx.font "normal 40pt amatic"))
+   (game-modify-buttons
+    (list
+     )
+    c)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; startup
+(set! ctx.font "normal 10pt amatic")
+
+(load-images!
+ (append
+  (list
+   "thr-warp-thin.png"
+   "thr-weft-thin.png"
+   "thr-warp-fat.png"
+   "thr-weft-fat.png"
+   "thr-weft-fat-dark.png"
+   "tog-off.png"
+   "tog-on.png"
+   ))
+ (lambda ()
+   (start-game canvas ctx)))

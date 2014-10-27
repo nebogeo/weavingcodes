@@ -1,0 +1,20 @@
+@font-face {
+    font-family: 'amatic';
+    src: url('../fonts/AmaticSC-Regular.ttf');
+}
+
+html, body {
+    font-family: 'amatic';
+    color: #000;
+    font-size:  20;
+    background: #fff;
+    // cursor: url(images/mouse.png), default;
+}
+
+.canvas {
+/*    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%; */
+}

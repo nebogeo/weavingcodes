@@ -8,15 +8,15 @@
 ;   ||  ||
 ;Y =====||==
 ;   ||  ||
-; 
+;
 ; resulting topmost colours would look like this:
-; 
+;
 ;    R   B
-;     
+;
 ;    Y   G
 
 ;---------------------------------------------------------
-; this function prints plain weave given warp and weft 
+; this function prints plain weave given warp and weft
 ; lists where characters represent colours.
 ; eg: (weave '(O O O O O O O) '(: : : : : : : : :))
 ; =>
@@ -52,13 +52,13 @@
 (define (weave warp weft)
   (for ((x (in-range 0 (length weft))))
        (for ((y (in-range 0 (length warp))))
-            (display (stitch x y 
+            (display (stitch x y
                              (list-ref warp y)
                              (list-ref weft x))))
        (newline)))
 
 ;------------------------------------------------------------
-; what happens if we generate the warp and weft colours 
+; what happens if we generate the warp and weft colours
 ; via formal grammar replacement?
 ;
 ; * works on lists not strings
@@ -69,7 +69,7 @@
 (define (replace pattern rules)
   (foldl
    (lambda (item r)
-     (append 
+     (append
       r
       (foldl
        (lambda (rule r)
@@ -83,8 +83,8 @@
 
 ;--------------------------------------------------------
 ; repeat replace multiple times:
-; eg: (recurse '(a) '((a (a b)) (b (a a))) 3) 
-; => 
+; eg: (recurse '(a) '((a (a b)) (b (a a))) 3)
+; =>
 ; (a b a a a b a b)
 
 (define (recurse pattern rules n)
@@ -98,11 +98,12 @@
 ; plug formal grammars into weave:
 
 (let ((p (recurse '(O)
-                  '( 
-                    (O (O : O :))
-                    (: (: O :))
+                  '(
 
-; 2                   (O (: O O :))
+;                    (O (O : O :))
+;                    (: (: O :))
+
+                    (O (: O O :))
 
 ; 1                   (O (O : O))
 ;                    (: (: O))
@@ -110,13 +111,13 @@
                   3))
       (q (recurse '(O)
                   '(
-                    (O (O : O))
-;                    (: (: O : O : O))
+;                    (O (O : O))
+                    (: (: O : O : O))
 
 ;                    (O (O O : : O :))
                     )
                   3)))
-                  
+
   (display "warp:")(display p)(newline)
   (display "weft:")(display q)(newline)
   (weave p p))
@@ -146,7 +147,7 @@
 ; (: (O O O)))
 
 ; wavy
-; '((O (: O O :))) 4)) 
+; '((O (: O O :))) 4))
 ; '((O (O : : O))) 4))
 
 ; lozenge
@@ -164,4 +165,3 @@
 ; boxes
 ;                    (O (O : O))
 ;                    (: (: O))
-q
