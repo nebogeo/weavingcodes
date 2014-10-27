@@ -1,8 +1,5 @@
 ;; thinking more like a loom
 
-;; the idea is to setup your loom then send it weft threads
-;; control is via heddles and a lift plan
-
 (define (dbg a)
   (console.log a)(newline) a)
 
@@ -85,16 +82,18 @@
 
   ;; test loom setup - plain weave on 4 shafts
   (let ((l (loom
-            (list
+            (list ;; 4 heddles
              (list 1 0 0 0)
              (list 0 1 0 0)
              (list 0 0 1 0)
              (list 0 0 0 1))
-            (list
+            (list ;; lift plan
              (list 1 0 1 0)
              (list 0 1 0 1))
-            (repeat (list "O" ":") 1))))
+            (repeat (list "O" ":") 1) ;; warp thread codes
+            )))
 
+    ;; test the basics
     (when (not (list-equal? (loom-lifts l)
                             (list
                              (list 1 0 1 0)
@@ -108,6 +107,7 @@
                                   (list 0 0 0 1))))
           (error "loom-heddles test failed"))
 
+    ;; test some internals
     (when (not (list-equal? (loom-lifts-to-heddles l (list 1 1 0 0) 0)
                             (list (list 1 0 0 0) (list 0 1 0 0))))
           (error "loom-lifts-to-heddles test failed"))
@@ -122,6 +122,7 @@
     (when (not (list-equal? (loom-shed l 1) (list 0 1 0 1)))
           (error "loom-shed test2 failed"))
 
+    ;; test the weave for a single weft
     (when (not (list-equal? (loom-weave-yarn l "A" 0) (list "O" "A" "O" "A")))
           (error "loom-weave-yarn test failed"))
 
