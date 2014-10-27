@@ -1,11 +1,14 @@
-; thinking more like a loom
+;; thinking more like a loom
+
+;; the idea is to setup your loom then send it weft threads
+;; control is via heddles and a lift plan
 
 (define (dbg a)
   (console.log a)(newline) a)
 
 (define (error msg) (console.log msg))
 
-;; repeat a sequence of things
+;; add a repetition to the end of a list
 ;; (repeat (list 1 2 3) 2) => (1 2 3 1 2 3 1 2 3)
 (define (repeat seq rep)
   (cond
