@@ -57,33 +57,43 @@
 (define (build-interface)
   (let ((c ($ "#heddles") ))
     (c.append "Heddles<br/>")
-    (build-line "heddle-1" c (list 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0)) (c.append "<br/>")
-    (build-line "heddle-2" c (list 0 1 0 0 0 1 0 1 0 0 0 1 0 1 0 0 0 1 0 1 0 0 0 1)) (c.append "<br/>")
-    (build-line "heddle-3" c (list 0 0 1 0 1 0 0 0 1 0 1 0 0 0 1 0 1 0 0 0 1 0 1 0)) (c.append "<br/>")
-    (build-line "heddle-4" c (list 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0)) (c.append "<br/>"))
+    (build-line "heddle-1" c (list 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1)) (c.append "<br/>")
+    (build-line "heddle-2" c (list 0 1 0 0 0 0 1 0 0 1 0 0 0 0 1 0 0 1 0 0 0 0 1 0)) (c.append "<br/>")
+    (build-line "heddle-3" c (list 0 0 1 0 0 1 0 0 0 0 1 0 0 1 0 0 0 0 1 0 0 1 0 0)) (c.append "<br/>")
+    (build-line "heddle-4" c (list 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0)) (c.append "<br/>"))
   (let ((c ($ "#liftplan") ))
     (c.append "Lift plan<br/>")
-    (build-line "lift-1" c (list 1 0 1 0)) (c.append "<br/>")
-    (build-line "lift-2" c (list 0 1 0 1)) (c.append "<br/>")
-    (build-line "lift-3" c (list 1 0 1 0)) (c.append "<br/>")
-    (build-line "lift-4" c (list 0 1 0 1)) (c.append "<br/>")
-    (build-line "lift-5" c (list 1 0 1 1)) (c.append "<br/>")
-    (build-line "lift-6" c (list 0 1 1 0)) (c.append "<br/>")
-    (build-line "lift-7" c (list 1 1 0 0)) (c.append "<br/>")
-    (build-line "lift-8" c (list 1 0 0 0)) (c.append "<br/>")
-    (build-line "lift-9" c (list 0 0 0 1)) (c.append "<br/>")
-    (build-line "lift-10" c (list 0 0 1 1)) (c.append "<br/>")
-    (build-line "lift-11" c (list 0 1 1 0)) (c.append "<br/>")
-    (build-line "lift-12" c (list 1 1 0 0)) (c.append "<br/>")
-    (build-line "lift-13" c (list 1 1 0 0)) (c.append "<br/>")
+    (build-line "lift-1" c (list 1 0 0 0)) (c.append "<br/>")
+    (build-line "lift-2" c (list 1 1 0 0)) (c.append "<br/>")
+    (build-line "lift-3" c (list 1 1 1 0)) (c.append "<br/>")
+    (build-line "lift-4" c (list 1 1 1 0)) (c.append "<br/>")
+    (build-line "lift-5" c (list 1 1 0 0)) (c.append "<br/>")
+    (build-line "lift-6" c (list 1 0 0 0)) (c.append "<br/>")
+    (build-line "lift-7" c (list 0 0 0 1)) (c.append "<br/>")
+    (build-line "lift-8" c (list 0 0 1 1)) (c.append "<br/>")
+    (build-line "lift-9" c (list 0 1 1 1)) (c.append "<br/>")
+    (build-line "lift-10" c (list 0 1 1 1)) (c.append "<br/>")
+    (build-line "lift-11" c (list 0 0 1 1)) (c.append "<br/>")
+    (build-line "lift-12" c (list 0 0 0 1)) (c.append "<br/>")
+    (build-line "lift-13" c (list 1 0 0 0)) (c.append "<br/>")
     (build-line "lift-14" c (list 1 1 0 0)) (c.append "<br/>")
-    (build-line "lift-15" c (list 0 0 1 1)) (c.append "<br/>")
-    (build-line "lift-16" c (list 0 0 1 1)) (c.append "<br/>")
+    (build-line "lift-15" c (list 1 1 1 0)) (c.append "<br/>")
+    (build-line "lift-16" c (list 1 1 1 0)) (c.append "<br/>")
     (build-line "lift-17" c (list 1 1 0 0)) (c.append "<br/>")
-    (build-line "lift-18" c (list 1 1 0 0)) (c.append "<br/>")
-    (build-line "lift-19" c (list 0 0 1 1)) (c.append "<br/>")
+    (build-line "lift-18" c (list 1 0 0 0)) (c.append "<br/>")
+    (build-line "lift-19" c (list 0 0 0 1)) (c.append "<br/>")
     (build-line "lift-20" c (list 0 0 1 1)) (c.append "<br/>")
-
+    (build-line "lift-21" c (list 0 1 1 1)) (c.append "<br/>")
+    (build-line "lift-22" c (list 0 1 1 1)) (c.append "<br/>")
+    (build-line "lift-23" c (list 0 0 1 1)) (c.append "<br/>")
+    (build-line "lift-24" c (list 0 0 0 1)) (c.append "<br/>")
+    (build-line "lift-25" c (list 1 0 0 0)) (c.append "<br/>")
+    (build-line "lift-26" c (list 1 1 0 0)) (c.append "<br/>")
+    (build-line "lift-27" c (list 1 1 1 0)) (c.append "<br/>")
+    (build-line "lift-28" c (list 1 1 1 0)) (c.append "<br/>")
+    (build-line "lift-29" c (list 1 1 0 0)) (c.append "<br/>")
+    (build-line "lift-30" c (list 1 0 0 0)) (c.append "<br/>")
+    (build-line "lift-31" c (list 0 0 0 1)) (c.append "<br/>")
     ))
 
 (define (read-line id c)
@@ -102,30 +112,29 @@
             (read-line "heddle-4" 24))
 
            (build-list
-            20 (lambda (i)
+            31 (lambda (i)
                  (read-line (string-append "lift-" (+ i 1)) 4)))
 
-           (repeat (list "fat") 27)))
+           (repeat (list "fat" "fat-dark") 13)))
   (set! weave
-        (loom-weave l (repeat (list "fat-dark") 30) 0))
-
+        (loom-weave l (repeat (list "fat-dark" "fat") 15) 0))
   )
 
 (define update-tick 0)
 
 (define (nightjar-intro c)
   (build-interface)
-
   (game-modify-render
    (lambda (ctx)
      (set! update-tick (+ (* 100 (game-time-delta c)) update-tick))
      (when (> update-tick 5)
            (set! update-tick 0)
-           (update))
-
-     (set! ctx.font "normal 30pt amatic")
-     (draw-weave ctx 20 20 weave)
-     (set! ctx.font "normal 40pt amatic"))
+           (update)
+           (set! ctx.font "normal 30pt amatic")
+           (ctx.clearRect 0 0 screen-width screen-height)
+           (draw-weave ctx 0 0 weave)
+           (set! ctx.font "normal 40pt amatic")
+           ))
    (game-modify-buttons
     (list
      )
@@ -143,6 +152,7 @@
    "thr-weft-thin.png"
    "thr-warp-fat.png"
    "thr-weft-fat.png"
+   "thr-warp-fat-dark.png"
    "thr-weft-fat-dark.png"
    "tog-off.png"
    "tog-on.png"

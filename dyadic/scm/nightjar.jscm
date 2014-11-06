@@ -664,7 +664,7 @@
 
 (define (top-render)
   (when (not (eq? game 0))
-        (ctx.clearRect 0 0 screen-width screen-height)
+;        (ctx.clearRect 0 0 screen-width screen-height)
         (let ((t (- (js "new Date()") load-time)))
           (set! ctx.fillStyle "#fff");
 ;;          (ctx.fillText (+ "Time is: " t) 10 750)
@@ -678,7 +678,8 @@
           (buttons-render! ctx t (game-buttons game))
           (draggables-render! ctx t (game-draggables game))
           (ctx.restore))
-        (requestAnimFrame top-render ctx)))
+        (requestAnimFrame top-render ctx)
+        ))
 
 (define game 0)
 

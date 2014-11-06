@@ -11,6 +11,17 @@ html, body {
     // cursor: url(images/mouse.png), default;
 }
 
+input {
+    margin: 0;
+}
+
+input[type="checkbox"] {
+    display:inline-block;
+    width:15px;
+    height:15px;
+    margin: 0;
+}
+
 .canvas {
 /*    position: absolute;
     left: 0px;
