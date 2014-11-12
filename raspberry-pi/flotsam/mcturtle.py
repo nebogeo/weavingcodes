@@ -121,35 +121,114 @@ def bulldoze(size):
 	box(GRASS,point(-size/2,-1,-size/2),point(size,1,size))
 	print("finished bulldozing")
 
+class mat44:
+
+        def __init__(self):
+            self.zero();
+            self.m[0][0]=1
+            self.m[1][1]=1
+            self.m[2][2]=1
+            self.m[3][3]=1;
+
+        def zero(self):
+            self.m=[[0,0,0,0],
+                    [0,0,0,0],
+                    [0,0,0,0],
+                    [0,0,0,0]]
+
+        def mul(self,rhs):
+            t=mat44()
+            for i in range(0,4):
+                for j in range(0,4):
+                    t.m[i][j]=self.m[i][0]*rhs.m[0][j]+self.m[i][1]*rhs.m[1][j]+self.m[i][2]*rhs.m[2][j]+self.m[i][3]*rhs.m[3][j];
+            return t
+
+        def translate(self, x, y, z):
+            t=mat44()
+            t.m[3][0]=x;
+            t.m[3][1]=y;
+            t.m[3][2]=z;
+            self.m=self.mul(t).m
+
+        def rotxyz(self, x, y, z):
+            if x!=0:
+                t=mat44()
+                x*=0.017453292
+                sx=math.sin(x)
+                cx=math.cos(x)
+    		t.m[1][1]=cx
+    		t.m[2][1]=-sx
+                t.m[1][2]=sx
+                t.m[2][2]=cx
+                self.m=self.mul(t).m
+            if y!=0:
+                t=mat44()
+                y*=0.017453292
+                sy=math.sin(y)
+                cy=math.cos(y)
+                t.m[0][0]=cy
+	    	t.m[2][0]=sy
+                t.m[0][2]=-sy
+                t.m[2][2]=cy
+                self.m=self.mul(t).m
+            if z!=0:
+                t=mat44()
+    		z*=0.017453292
+		sz=math.sin(z)
+		cz=math.cos(z)
+    		t.m[0][0]=cz
+    		t.m[1][0]=-sz
+                t.m[0][1]=sz
+                t.m[1][1]=cz
+	    	self.m=self.mul(t).m
+
+        def scale(self, x, y, z):
+            t = mat44()
+            t.m[0][0]=x
+            t.m[1][1]=y
+            t.m[2][2]=z
+            self.m=self.mul(t).m
+
+
+        def transform(self,p):
+            t = point(0,0,0)
+            t.x=p.x*self.m[0][0] + p.y*self.m[1][0] + p.z*self.m[2][0]
+            t.y=p.x*self.m[0][1] + p.y*self.m[1][1] + p.z*self.m[2][1]
+            t.z=p.x*self.m[0][2] + p.y*self.m[1][2] + p.z*self.m[2][2]
+            return t
+
+
+
 ##########################################################
 # turtle stuff
 class turtle:
-	m_pos = point(0,0,0)
-	m_dir = point(1,0,0)
-	m_material = MELON
+
+	def __init__(self):
+		self.reset()
+
+	def reset(self):
+		print("reset...")
+		self.m_pos = point(0,0,0)
+		self.m_dir = mat44()
+		self.m_material = MELON
 
 	def material(this,m):
 		this.m_material=m
 
 	def forward(this,distance):
-		box(this.m_material,this.m_pos,this.m_dir*distance) 
-		this.m_pos+=this.m_dir*distance
+		dir = this.m_dir.transform(point(0,0,1))
+		dir.x=round(dir.x)
+		dir.y=round(dir.y)
+		dir.z=round(dir.z)
+		print(dir.x,dir.y,dir.z)
+		box(this.m_material,this.m_pos,dir*distance) 
+		this.m_pos+=dir*distance
 	
 	def roty(this,a):
-		# rotate around y
-		a = a*0.0174532925
-		tx = this.m_dir.x * math.cos(a)+this.m_dir.z * math.sin(a)
-		tz = this.m_dir.x * -math.sin(a)+this.m_dir.z * math.cos(a)
-		this.m_dir.x = int(tx)
-		this.m_dir.z = int(tz)
+		this.m_dir.rotxyz(0,a,0)
 
 	def rotx(this,a):
-		# rotate around x
-		a = a*0.0174532925
-		tx = this.m_dir.x * math.cos(a)+this.m_dir.y * -math.sin(a)
-		ty = this.m_dir.x * math.sin(a)+this.m_dir.y * math.cos(a)
-		this.m_dir.x = int(tx)
-		this.m_dir.y = int(ty)
+		this.m_dir.rotxyz(a,0,0)
 
 	def left(this):
 		this.roty(90)

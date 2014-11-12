@@ -4,9 +4,10 @@ import time
 
 # standard lsystem stuff
 def run_rule(str,rule):
+    if rule[1]=="": return str
     ret = ""
     for i in range(0,len(str)):
-        if str[i:i+len(rule[0])]==rule[0]:
+        if str[i]==rule[0]:
             ret+=rule[1]
         else:
             ret+=str[i]
@@ -17,7 +18,6 @@ def explode_lsystem(str,rules,gen):
         for r in rules:
             str = run_rule(str,r)
     return str
-
 
 # a weave structure kernel
 
@@ -70,20 +70,32 @@ fat_red = 1
 thin_red = 2
 fat_blue = 4
 thin_blue = 8
+symbol_x = 3
+symbol_y = 5
+symbol_z = 9
 
 def lsys_from_code(c):
     if c==fat_red: return "R"
     if c==fat_blue: return "B"
     if c==thin_red: return "r"
     if c==thin_blue: return "b"
+    if c==symbol_x: return "X"
+    if c==symbol_y: return "Y"
+    if c==symbol_z: return "Z"
     return ""
 
-def rule_from_code(code):
-    f = lsys_from_code(code[0])
+def rule_from_code(sym,code):
     t = ""
-    for i in range(1,8):
+    for i in range(0,8):
         t+=lsys_from_code(code[i])
-    return [f,t]
+    return [sym,t]
+
+def remove_symbols(str):
+    ret=""
+    for i in range(0,len(str)):
+        if str[i]!="X" and str[i]!="Y" and str[i]!="Z":
+            ret+=str[i]
+    return ret
 
 def lsys_from_blocks(code):
     #axiom
@@ -91,19 +103,18 @@ def lsys_from_blocks(code):
     for i in range(0,8):
         axiom+=lsys_from_code(code[i])
 
-    rule1=rule_from_code(code[8:16])
-    rule2=rule_from_code(code[16:24])
+    rule1=rule_from_code("X",code[8:16])
+    rule2=rule_from_code("Y",code[16:24])
+    rule3=rule_from_code("Z",code[24:32])
 
     print("------")
     print(axiom)
     print(rule1)
     print(rule2)
+    print(rule3)
 
-    if (rule2[0]!=""):
-        return explode_lsystem(axiom,[rule1,rule2],3)
-    else:
-        return explode_lsystem(axiom,[rule1],3)
-
+    return remove_symbols(explode_lsystem(axiom,[rule1,rule2,rule3],6))
+    
 
 def sprite_from_yarn(c,warp):
     if warp:
@@ -151,8 +162,14 @@ emu = [2,0,0,0,0,0,0,0,
 
 frame = 0
 
-k = kernel([1,0,0,1],2,2)
+k = kernel([0,0,1,1,
+            0,1,1,0,
+            1,1,0,0,
+            1,0,0,1],4,4)
+
+print("initing")
 driver.init()
+
 print(driver.read_all())
 
 
