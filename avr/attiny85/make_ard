@@ -1,0 +1,3 @@
+avr-gcc -DAVR -Wall -Os -mmcu=attiny85 -o i2c.elf i2c_old.cpp tinywires/TinyWireS.cpp tinywires/usiTwiSlave.c
+avr-objcopy --output-target=ihex i2c.elf i2c.ihex
+avrdude -c usbtiny -p t85 -e -U flash:w:i2c.ihex -U lfuse:w:0xE2:m

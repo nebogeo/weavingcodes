@@ -1,0 +1,13 @@
+command to write asm to device:
+
+avr-as -mmcu=attiny12 -o test.o test.s
+avr-ld -o test.elf test.o
+avr-objcopy --output-target=ihex test.elf test.ihex
+
+avrdude to check device:
+
+avrdude -c usbtiny -p t12 -v 
+
+write code to device:
+
+avrdude -c usbtiny -p t12 -e -U flash:w:test.ihex 
