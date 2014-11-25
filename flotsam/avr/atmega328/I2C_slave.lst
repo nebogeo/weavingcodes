@@ -1,0 +1,296 @@
+   1               		.file	"I2C_slave.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	I2C_init
+  12               	I2C_init:
+  13               	.LFB0:
+  14               		.file 1 "I2C_slave.c"
+   1:I2C_slave.c   **** #include <avr/io.h>
+   2:I2C_slave.c   **** #include <util/twi.h>
+   3:I2C_slave.c   **** #include <avr/interrupt.h>
+   4:I2C_slave.c   **** 
+   5:I2C_slave.c   **** #include "I2C_slave.h"
+   6:I2C_slave.c   **** 
+   7:I2C_slave.c   **** void I2C_init(uint8_t address){
+  15               		.loc 1 7 0
+  16               		.cfi_startproc
+  17               	.LVL0:
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+   8:I2C_slave.c   **** 	// load address into TWI address register
+   9:I2C_slave.c   **** 	TWAR = address;
+  22               		.loc 1 9 0
+  23 0000 8093 BA00 		sts 186,r24
+  10:I2C_slave.c   **** 	// set the TWCR to enable address matching and enable TWI, clear TWINT, enable TWI interrupt
+  11:I2C_slave.c   **** 	TWCR = (1<<TWIE) | (1<<TWEA) | (1<<TWINT) | (1<<TWEN);
+  24               		.loc 1 11 0
+  25 0004 85EC      		ldi r24,lo8(-59)
+  26               	.LVL1:
+  27 0006 8093 BC00 		sts 188,r24
+  28               	.LVL2:
+  29 000a 0895      		ret
+  30               		.cfi_endproc
+  31               	.LFE0:
+  33               	.global	I2C_stop
+  35               	I2C_stop:
+  36               	.LFB1:
+  12:I2C_slave.c   **** }
+  13:I2C_slave.c   **** 
+  14:I2C_slave.c   **** void I2C_stop(void){
+  37               		.loc 1 14 0
+  38               		.cfi_startproc
+  39               	/* prologue: function */
+  40               	/* frame size = 0 */
+  41               	/* stack size = 0 */
+  42               	.L__stack_usage = 0
+  15:I2C_slave.c   **** 	// clear acknowledge and enable bits
+  16:I2C_slave.c   **** 	TWCR &= ~( (1<<TWEA) | (1<<TWEN) );
+  43               		.loc 1 16 0
+  44 000c ECEB      		ldi r30,lo8(-68)
+  45 000e F0E0      		ldi r31,0
+  46 0010 8081      		ld r24,Z
+  47 0012 8B7B      		andi r24,lo8(-69)
+  48 0014 8083      		st Z,r24
+  49 0016 0895      		ret
+  50               		.cfi_endproc
+  51               	.LFE1:
+  53               	.global	__vector_24
+  55               	__vector_24:
+  56               	.LFB2:
+  17:I2C_slave.c   **** }
+  18:I2C_slave.c   **** 
+  19:I2C_slave.c   **** ISR(TWI_vect){
+  57               		.loc 1 19 0
+  58               		.cfi_startproc
+  59 0018 1F92      		push r1
+  60               	.LCFI0:
+  61               		.cfi_def_cfa_offset 3
+  62               		.cfi_offset 1, -2
+  63 001a 0F92      		push r0
+  64               	.LCFI1:
+  65               		.cfi_def_cfa_offset 4
+  66               		.cfi_offset 0, -3
+  67 001c 0FB6      		in r0,__SREG__
+  68 001e 0F92      		push r0
+  69 0020 1124      		clr __zero_reg__
+  70 0022 8F93      		push r24
+  71               	.LCFI2:
+  72               		.cfi_def_cfa_offset 5
+  73               		.cfi_offset 24, -4
+  74 0024 9F93      		push r25
+  75               	.LCFI3:
+  76               		.cfi_def_cfa_offset 6
+  77               		.cfi_offset 25, -5
+  78 0026 EF93      		push r30
+  79               	.LCFI4:
+  80               		.cfi_def_cfa_offset 7
+  81               		.cfi_offset 30, -6
+  82 0028 FF93      		push r31
+  83               	.LCFI5:
+  84               		.cfi_def_cfa_offset 8
+  85               		.cfi_offset 31, -7
+  86               	/* prologue: Signal */
+  87               	/* frame size = 0 */
+  88               	/* stack size = 7 */
+  89               	.L__stack_usage = 7
+  20:I2C_slave.c   **** 	
+  21:I2C_slave.c   **** 	// temporary stores the received data
+  22:I2C_slave.c   **** 	uint8_t data;
+  23:I2C_slave.c   **** 	
+  24:I2C_slave.c   **** 	// own address has been acknowledged
+  25:I2C_slave.c   **** 	if( (TWSR & 0xF8) == TW_SR_SLA_ACK ){  
+  90               		.loc 1 25 0
+  91 002a 8091 B900 		lds r24,185
+  92 002e 887F      		andi r24,lo8(-8)
+  93 0030 8036      		cpi r24,lo8(96)
+  94 0032 01F4      		brne .L4
+  26:I2C_slave.c   **** 		buffer_address = 0xFF;
+  95               		.loc 1 26 0
+  96 0034 8FEF      		ldi r24,lo8(-1)
+  97 0036 00C0      		rjmp .L14
+  98               	.L4:
+  27:I2C_slave.c   **** 		// clear TWI interrupt flag, prepare to receive next byte and acknowledge
+  28:I2C_slave.c   **** 		TWCR |= (1<<TWIE) | (1<<TWINT) | (1<<TWEA) | (1<<TWEN); 
+  29:I2C_slave.c   **** 	}
+  30:I2C_slave.c   **** 	else if( (TWSR & 0xF8) == TW_SR_DATA_ACK ){ // data has been received in slave receiver mode
+  99               		.loc 1 30 0
+ 100 0038 8091 B900 		lds r24,185
+ 101 003c 887F      		andi r24,lo8(-8)
+ 102 003e 8038      		cpi r24,lo8(-128)
+ 103 0040 01F4      		brne .L6
+  31:I2C_slave.c   **** 		
+  32:I2C_slave.c   **** 		// save the received byte inside data 
+  33:I2C_slave.c   **** 		data = TWDR;
+ 104               		.loc 1 33 0
+ 105 0042 8091 BB00 		lds r24,187
+ 106               	.LVL3:
+  34:I2C_slave.c   **** 		
+  35:I2C_slave.c   **** 		// check wether an address has already been transmitted or not
+  36:I2C_slave.c   **** 		if(buffer_address == 0xFF){
+ 107               		.loc 1 36 0
+ 108 0046 9091 0000 		lds r25,buffer_address
+ 109 004a 9F3F      		cpi r25,lo8(-1)
+ 110 004c 01F4      		brne .L7
+ 111               	.LVL4:
+ 112               	.L14:
+  37:I2C_slave.c   **** 			
+  38:I2C_slave.c   **** 			buffer_address = data; 
+ 113               		.loc 1 38 0
+ 114 004e 8093 0000 		sts buffer_address,r24
+ 115 0052 00C0      		rjmp .L13
+ 116               	.LVL5:
+ 117               	.L7:
+  39:I2C_slave.c   **** 			
+  40:I2C_slave.c   **** 			// clear TWI interrupt flag, prepare to receive next byte and acknowledge
+  41:I2C_slave.c   **** 			TWCR |= (1<<TWIE) | (1<<TWINT) | (1<<TWEA) | (1<<TWEN); 
+  42:I2C_slave.c   **** 		}
+  43:I2C_slave.c   **** 		else{ // if a databyte has already been received
+  44:I2C_slave.c   **** 			
+  45:I2C_slave.c   **** 			// store the data at the current address
+  46:I2C_slave.c   **** 			rxbuffer[buffer_address] = data;
+ 118               		.loc 1 46 0
+ 119 0054 E091 0000 		lds r30,buffer_address
+ 120 0058 F0E0      		ldi r31,0
+ 121 005a E050      		subi r30,lo8(-(rxbuffer))
+ 122 005c F040      		sbci r31,hi8(-(rxbuffer))
+ 123 005e 8083      		st Z,r24
+ 124 0060 00C0      		rjmp .L16
+ 125               	.LVL6:
+ 126               	.L6:
+  47:I2C_slave.c   **** 			
+  48:I2C_slave.c   **** 			// increment the buffer address
+  49:I2C_slave.c   **** 			buffer_address++;
+  50:I2C_slave.c   **** 			
+  51:I2C_slave.c   **** 			// if there is still enough space inside the buffer
+  52:I2C_slave.c   **** 			if(buffer_address < 0xFF){
+  53:I2C_slave.c   **** 				// clear TWI interrupt flag, prepare to receive next byte and acknowledge
+  54:I2C_slave.c   **** 				TWCR |= (1<<TWIE) | (1<<TWINT) | (1<<TWEA) | (1<<TWEN); 
+  55:I2C_slave.c   **** 			}
+  56:I2C_slave.c   **** 			else{
+  57:I2C_slave.c   **** 				// clear TWI interrupt flag, prepare to receive last byte and don't acknowledge
+  58:I2C_slave.c   **** 				TWCR |= (1<<TWIE) | (1<<TWINT) | (0<<TWEA) | (1<<TWEN); 
+  59:I2C_slave.c   **** 			}
+  60:I2C_slave.c   **** 		}
+  61:I2C_slave.c   **** 	}
+  62:I2C_slave.c   **** 	else if( (TWSR & 0xF8) == TW_ST_DATA_ACK ){ // device has been addressed to be a transmitter
+ 127               		.loc 1 62 0
+ 128 0062 8091 B900 		lds r24,185
+ 129 0066 887F      		andi r24,lo8(-8)
+ 130 0068 883B      		cpi r24,lo8(-72)
+ 131 006a 01F4      		brne .L9
+  63:I2C_slave.c   **** 		
+  64:I2C_slave.c   **** 		// copy data from TWDR to the temporary memory
+  65:I2C_slave.c   **** 		data = TWDR;
+ 132               		.loc 1 65 0
+ 133 006c 8091 BB00 		lds r24,187
+ 134               	.LVL7:
+  66:I2C_slave.c   **** 		
+  67:I2C_slave.c   **** 		// if no buffer read address has been sent yet
+  68:I2C_slave.c   **** 		if( buffer_address == 0xFF ){
+ 135               		.loc 1 68 0
+ 136 0070 9091 0000 		lds r25,buffer_address
+ 137 0074 9F3F      		cpi r25,lo8(-1)
+ 138 0076 01F4      		brne .L10
+  69:I2C_slave.c   **** 			buffer_address = data;
+ 139               		.loc 1 69 0
+ 140 0078 8093 0000 		sts buffer_address,r24
+ 141               	.L10:
+  70:I2C_slave.c   **** 		}
+  71:I2C_slave.c   **** 		
+  72:I2C_slave.c   **** 		// copy the specified buffer address into the TWDR register for transmission
+  73:I2C_slave.c   **** 		TWDR = txbuffer[buffer_address];
+ 142               		.loc 1 73 0
+ 143 007c E091 0000 		lds r30,buffer_address
+ 144 0080 F0E0      		ldi r31,0
+ 145 0082 E050      		subi r30,lo8(-(txbuffer))
+ 146 0084 F040      		sbci r31,hi8(-(txbuffer))
+ 147 0086 8081      		ld r24,Z
+ 148               	.LVL8:
+ 149 0088 8093 BB00 		sts 187,r24
+ 150               	.L16:
+  74:I2C_slave.c   **** 		// increment buffer read address
+  75:I2C_slave.c   **** 		buffer_address++;
+ 151               		.loc 1 75 0
+ 152 008c 8091 0000 		lds r24,buffer_address
+ 153 0090 8F5F      		subi r24,lo8(-(1))
+ 154 0092 8093 0000 		sts buffer_address,r24
+  76:I2C_slave.c   **** 		
+  77:I2C_slave.c   **** 		// if there is another buffer address that can be sent
+  78:I2C_slave.c   **** 		if(buffer_address < 0xFF){
+ 155               		.loc 1 78 0
+ 156 0096 8091 0000 		lds r24,buffer_address
+ 157 009a 8F3F      		cpi r24,lo8(-1)
+ 158 009c 01F0      		breq .L11
+ 159               	.L13:
+  79:I2C_slave.c   **** 			// clear TWI interrupt flag, prepare to send next byte and receive acknowledge
+  80:I2C_slave.c   **** 			TWCR |= (1<<TWIE) | (1<<TWINT) | (1<<TWEA) | (1<<TWEN); 
+ 160               		.loc 1 80 0
+ 161 009e 8091 BC00 		lds r24,188
+ 162 00a2 856C      		ori r24,lo8(-59)
+ 163 00a4 00C0      		rjmp .L12
+ 164               	.L11:
+  81:I2C_slave.c   **** 		}
+  82:I2C_slave.c   **** 		else{
+  83:I2C_slave.c   **** 			// clear TWI interrupt flag, prepare to send last byte and receive not acknowledge
+  84:I2C_slave.c   **** 			TWCR |= (1<<TWIE) | (1<<TWINT) | (0<<TWEA) | (1<<TWEN); 
+ 165               		.loc 1 84 0
+ 166 00a6 8091 BC00 		lds r24,188
+ 167 00aa 8568      		ori r24,lo8(-123)
+ 168 00ac 00C0      		rjmp .L12
+ 169               	.L9:
+  85:I2C_slave.c   **** 		}
+  86:I2C_slave.c   **** 		
+  87:I2C_slave.c   **** 	}
+  88:I2C_slave.c   **** 	else{
+  89:I2C_slave.c   **** 		// if none of the above apply prepare TWI to be addressed again
+  90:I2C_slave.c   **** 		TWCR |= (1<<TWIE) | (1<<TWEA) | (1<<TWEN);
+ 170               		.loc 1 90 0
+ 171 00ae 8091 BC00 		lds r24,188
+ 172 00b2 8564      		ori r24,lo8(69)
+ 173               	.L12:
+ 174 00b4 8093 BC00 		sts 188,r24
+ 175               	/* epilogue start */
+  91:I2C_slave.c   **** 	} 
+  92:I2C_slave.c   **** }
+ 176               		.loc 1 92 0
+ 177 00b8 FF91      		pop r31
+ 178 00ba EF91      		pop r30
+ 179 00bc 9F91      		pop r25
+ 180 00be 8F91      		pop r24
+ 181 00c0 0F90      		pop r0
+ 182 00c2 0FBE      		out __SREG__,r0
+ 183 00c4 0F90      		pop r0
+ 184 00c6 1F90      		pop r1
+ 185 00c8 1895      		reti
+ 186               		.cfi_endproc
+ 187               	.LFE2:
+ 189               		.comm	rxbuffer,255,1
+ 190               		.comm	txbuffer,255,1
+ 191               		.comm	buffer_address,1,1
+ 192               	.Letext0:
+ 193               		.file 2 "I2C_slave.h"
+ 194               		.file 3 "/usr/lib/avr/include/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 I2C_slave.c
+     /tmp/ccNUxocG.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccNUxocG.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccNUxocG.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccNUxocG.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccNUxocG.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccNUxocG.s:12     .text:0000000000000000 I2C_init
+     /tmp/ccNUxocG.s:35     .text:000000000000000c I2C_stop
+     /tmp/ccNUxocG.s:55     .text:0000000000000018 __vector_24
+                            *COM*:0000000000000001 buffer_address
+                            *COM*:00000000000000ff rxbuffer
+                            *COM*:00000000000000ff txbuffer
+
+UNDEFINED SYMBOLS
+__do_clear_bss
