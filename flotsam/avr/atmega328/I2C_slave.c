@@ -17,26 +17,27 @@ void I2C_stop(void){
 }
 
 ISR(TWI_vect){
-	
+
+//    DDRB |= _BV(PB0);
+
 	// temporary stores the received data
 	uint8_t data;
-	
+    
 	// own address has been acknowledged
 	if( (TWSR & 0xF8) == TW_SR_SLA_ACK ){  
 		buffer_address = 0xFF;
 		// clear TWI interrupt flag, prepare to receive next byte and acknowledge
 		TWCR |= (1<<TWIE) | (1<<TWINT) | (1<<TWEA) | (1<<TWEN); 
 	}
-	else if( (TWSR & 0xF8) == TW_SR_DATA_ACK ){ // data has been received in slave receiver mode
-		
+	else if( (TWSR & 0xF8) == TW_SR_DATA_ACK ){ // data has been received in slave receiver mode		
+
 		// save the received byte inside data 
 		data = TWDR;
-		
+        		
 		// check wether an address has already been transmitted or not
-		if(buffer_address == 0xFF){
-			
+		if(buffer_address == 0xFF){			
 			buffer_address = data; 
-			
+		   
 			// clear TWI interrupt flag, prepare to receive next byte and acknowledge
 			TWCR |= (1<<TWIE) | (1<<TWINT) | (1<<TWEA) | (1<<TWEN); 
 		}
@@ -44,7 +45,7 @@ ISR(TWI_vect){
 			
 			// store the data at the current address
 			rxbuffer[buffer_address] = data;
-			
+
 			// increment the buffer address
 			buffer_address++;
 			
@@ -61,6 +62,8 @@ ISR(TWI_vect){
 	}
 	else if( (TWSR & 0xF8) == TW_ST_DATA_ACK ){ // device has been addressed to be a transmitter
 		
+        PORTD=0xaa;
+
 		// copy data from TWDR to the temporary memory
 		data = TWDR;
 		
@@ -68,6 +71,9 @@ ISR(TWI_vect){
 		if( buffer_address == 0xFF ){
 			buffer_address = data;
 		}
+
+
+        PORTD=buffer_address;
 		
 		// copy the specified buffer address into the TWDR register for transmission
 		TWDR = txbuffer[buffer_address];
@@ -87,6 +93,9 @@ ISR(TWI_vect){
 	}
 	else{
 		// if none of the above apply prepare TWI to be addressed again
+
+        //PORTD=(TWSR & 0xF8);
+
 		TWCR |= (1<<TWIE) | (1<<TWEA) | (1<<TWEN);
 	} 
 }
