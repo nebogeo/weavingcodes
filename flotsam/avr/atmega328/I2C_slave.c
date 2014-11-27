@@ -18,8 +18,6 @@ void I2C_stop(void){
 
 ISR(TWI_vect){
 
-//    DDRB |= _BV(PB0);
-
 	// temporary stores the received data
 	uint8_t data;
     
@@ -44,7 +42,7 @@ ISR(TWI_vect){
 		else{ // if a databyte has already been received
 			
 			// store the data at the current address
-			rxbuffer[buffer_address] = data;
+			i2cbuffer[buffer_address] = data;
 
 			// increment the buffer address
 			buffer_address++;
@@ -60,10 +58,9 @@ ISR(TWI_vect){
 			}
 		}
 	}
-	else if( (TWSR & 0xF8) == TW_ST_DATA_ACK ){ // device has been addressed to be a transmitter
+	else if( (TWSR & 0xF8) == TW_ST_DATA_ACK)
+    { // device has been addressed to be a transmitter
 		
-        PORTD=0xaa;
-
 		// copy data from TWDR to the temporary memory
 		data = TWDR;
 		
@@ -72,11 +69,11 @@ ISR(TWI_vect){
 			buffer_address = data;
 		}
 
-
         PORTD=buffer_address;
 		
 		// copy the specified buffer address into the TWDR register for transmission
-		TWDR = txbuffer[buffer_address];
+		TWDR = i2cbuffer[buffer_address];
+
 		// increment buffer read address
 		buffer_address++;
 		
@@ -91,6 +88,27 @@ ISR(TWI_vect){
 		}
 		
 	}
+	else if((TWSR & 0xF8) == TW_ST_DATA_NACK)
+    { // device has been addressed to be a transmitter
+		// copy data from TWDR to the temporary memory
+		data = TWDR;
+		
+		// if no buffer read address has been sent yet
+		if( buffer_address == 0xFF ){
+			buffer_address = data;
+		}
+
+        //PORTD=buffer_address;
+		
+		// copy the specified buffer address into the TWDR register for transmission
+		TWDR = i2cbuffer[buffer_address];
+		
+		// increment buffer read address
+		buffer_address++;
+		
+        TWCR |= (1<<TWIE) | (1<<TWINT) | (1<<TWEA) | (1<<TWEN) |
+            (0<<TWSTA) | (0<<TWSTO) | (0<<TWWC); 
+    }
 	else{
 		// if none of the above apply prepare TWI to be addressed again
 

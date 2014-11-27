@@ -28,8 +28,7 @@ int main(void){
     PORTD = 0xff;
 
     for (int i=0; i<0xFF; i++) {
-        txbuffer[i]=0x55;
-        rxbuffer[i]=0x55;
+        i2cbuffer[i]=0;
     }
 
     int led_counter = 0;
