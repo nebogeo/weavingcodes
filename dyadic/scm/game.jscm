@@ -115,9 +115,9 @@
             31 (lambda (i)
                  (read-line (string-append "lift-" (+ i 1)) 4)))
 
-           (repeat (list "fat" "fat-dark") 13)))
+           (repeat (list "fat" "fat" "fat-dark") 13)))
   (set! weave
-        (loom-weave l (repeat (list "fat-dark" "fat") 15) 0))
+        (loom-weave l (repeat (list "fat" "fat" "fat-dark" ) 15) 0))
   )
 
 (define update-tick 0)

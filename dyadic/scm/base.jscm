@@ -16,7 +16,7 @@
 
 ;; basic scheme stuff we need, and some tests
 
-(define display (lambda (str) (console.log str)))
+(define display (lambda (str) (console.log str) (ditto.log str)))
 (define newline (lambda () (console.log "\n")))
 (define (msg a) (display a))
 (define (dbg a) (msg a) a)
@@ -32,6 +32,16 @@
 
 (define (max a b) (if (> a b) a b))
 (define (min a b) (if (< a b) a b))
+
+(define (equal? a b)
+  (cond
+   ((and (list? a) (list? b))
+    (list-equal? a b))
+   (else
+    (eq? a b))))
+
+(define (cddr l)
+  (cdr (cdr l)))
 
 ;; replaced by underlying iterative version
 ;;(define foldl

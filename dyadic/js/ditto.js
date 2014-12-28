@@ -215,7 +215,7 @@ ditto.comp_begin = function(args) {
         // adding semicolon here
         "{\n"+ditto.list_map(ditto.comp,eexpr).join(";\n")+"\n"+
         "return "+ditto.comp(last)+"\n}\n";
-}
+};
 
 // ( ((arg1 exp1) (arg2 expr2) ...) body ...)
 ditto.comp_let = function(args) {
@@ -292,6 +292,8 @@ ditto.core_forms = function(fn, args) {
 
 //    var debug = "// generating: "+fn+"\n";
     var debug = "/* "+fn+" */ ";
+
+    if (fn == "quote") return JSON.stringify(args);
 
     // core forms
     if (fn == "lambda") if (ditto.check(fn,args,2,-1)) return debug+ditto.comp_lambda(args);
@@ -497,6 +499,7 @@ ditto.is_number = function(str) {
     return ditto.char_is_number(str[0]);
 };
 
+
 ditto.comp = function(f) {
     //    console.log(f);
     try {
@@ -562,6 +565,14 @@ ditto.load_unparsed = function(url) {
 };
 
 
+ditto.clear = function(id)
+{
+    var n = document.getElementById(id);
+    while (n.firstChild) {
+        n.removeChild(n.firstChild);
+    }
+}
+
 ditto.to_page = function(id,html)
 {
     var div=document.createElement("div");
@@ -570,6 +581,46 @@ ditto.to_page = function(id,html)
     document.getElementById(id).appendChild(div);
 };
 
+ditto.log = function(msg)
+{
+    ditto.to_page("output",msg);
+};
+
+var corecode = "";
+
+function ditto_eval_element(id) {
+    ditto.clear("output");
+    ditto.clear("compiled");
+    var js="";
+    var el = document.getElementById(id);
+    var code = $("#id_code").val();
+    js += "\n"+ditto.compile_code(code);
+    ditto.to_page("compiled",js);
+    try {
+        eval(corecode+js);
+    } catch (e) {
+        ditto.to_page("output", "An error occured while evaluating ");
+        ditto.to_page("output",e);
+        ditto.to_page("output",e.stack);
+    }
+}
+
+function ditto_eval_element_wrap(id,header,footer) {
+    ditto.clear("output");
+    ditto.clear("compiled");
+    var js="";
+    var el = document.getElementById(id);
+    var code = $("#id_code").val();
+    js += "\n"+ditto.compile_code(header+code+footer);
+    ditto.to_page("compiled",js);
+    try {
+        eval(corecode+js);
+    } catch (e) {
+        ditto.to_page("output", "An error occured while evaluating ");
+        ditto.to_page("output",e);
+        ditto.to_page("output",e.stack);
+    }
+}
 
 function init(filenames) {
 
@@ -586,7 +637,7 @@ function init(filenames) {
             console.log(e.stack);
         }
 
-        var js=ditto.load("scm/base.jscm");
+        corecode=ditto.load("scm/base.jscm");
         /*js+=ditto.load("scm/webgl.scm");
         js+=ditto.load("scm/texture.scm");
         js+=ditto.load("scm/maths.scm");
@@ -598,15 +649,15 @@ function init(filenames) {
         js+=ditto.load("scm/renderer.scm");
         js+=ditto.load("scm/fluxus.scm");
         js+=ditto.load("scm/gfx.scm");*/
-        js+=ditto.load("scm/nightjar.jscm");
+        corecode+=ditto.load("scm/nightjar.jscm");
 
         filenames.forEach(function(filename) {
-            js+=ditto.load(filename);
+            corecode+=ditto.load(filename);
         });
 
 
         try {
-            eval(js);
+            eval(corecode);
         } catch (e) {
             //console.log("An error occured parsing "+js);
             console.log(e);
