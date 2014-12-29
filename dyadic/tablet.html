@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html style="background:#aaa;">
   <head>
     <title>tablet weave livecoding</title>
     <link href="css/style.css" rel="stylesheet" type="text/css">
-    <body>
+    <body style="background:#aaa;">
       <div style="width:50%; margin:0 auto; float:left;">
         <h1>tablet weave livecoding</h1>
 
@@ -19,16 +19,18 @@
 (weave-forward 8)
 (weave-back 8)
 (twist 0 2 4 6)
-(weave-forward 8)
-(weave-back 8)
 
-          </textarea>
-          <input type="submit" value="weave">
+(repeat 4
+  (weave-forward 2)
+  (weave-back 3))
+
+          </textarea></br>
+          <input type="submit" value="weave me">
         </form>
           <h2>output</h2>
           <pre><div id="output"></div></pre>
 
-          <h2>compiler</h2>
+<!--          <h2>compiler</h2> -->
           <pre><div id="compiled" style="visibility:hidden;"></div></pre>
 
 

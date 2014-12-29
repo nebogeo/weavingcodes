@@ -118,20 +118,25 @@
 
 (define pos 10)
 
+(define (card-to-direction card)
+  (if (eq? (card-memory card) "b")
+      (if (eq? (card-angle card) "z") "front" "back")
+      (if (eq? (card-angle card) "z") "back" "front")))
+
 (define (card-loom-weave-top loom)
   (define canvas (document.getElementById "canvas"))
   (define ctx (canvas.getContext "2d"))
   (set! pos (+ pos 14))
   (index-for-each
    (lambda (i card)
-     (let ((direction (if (eq? (card-angle card) "z") "front" "back"))
+     (let ((direction (card-to-direction card))
            (colour (if (eq? (car (card-weave card)) "#") "black" "white")))
        (ctx.drawImage (find-image (string-append "tabwarp-" direction "-" colour ".png"))
                       (* i 7) pos)))
    (card-loom-cards loom))
   (index-for-each
    (lambda (i card)
-     (let ((direction (if (eq? (card-angle card) "s") "front" "back"))
+     (let ((direction (card-to-direction card))
            (colour (if (eq? (cadr (card-weave card)) "#") "black" "white")))
        (ctx.drawImage (find-image (string-append "tabwarp-" direction "-" colour ".png"))
                       (+ (* i 7) 80) pos)))
@@ -305,13 +310,3 @@
           "#" "#"
           "." ".")
     )))
-
-;(load-images!
-; (append
- ; (list
-;   "tabwarp.png"
-;   "tabwarp-black.png"
-;   ))
-; (lambda ()
-;   (display "ello")
-;   ))
