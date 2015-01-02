@@ -127,19 +127,56 @@
   (define canvas (document.getElementById "canvas"))
   (define ctx (canvas.getContext "2d"))
   (set! pos (+ pos 14))
+
+
+  (index-for-each
+   (lambda (i card)
+     (let ((x (+ (* i 14) 0)))
+       ;(ctx.strokeRect x pos 12 12)
+
+       (ctx.beginPath)
+       (ctx.arc (+ x 2) (+ pos 2) 2 (* Math.PI 2) #f)
+       (set! ctx.fillStyle (if (eq? (card-a card) "#") "#000" "#fff"))
+       (ctx.fill)
+       (ctx.closePath)
+
+       (ctx.beginPath)
+       (ctx.arc (+ x 8) (+ pos 2) 2 (* Math.PI 2) #f)
+       (set! ctx.fillStyle (if (eq? (card-b card) "#") "#000" "#fff"))
+       (ctx.fill)
+       (ctx.closePath)
+
+       (ctx.beginPath)
+       (ctx.arc (+ x 8) (+ pos 8) 2 (* Math.PI 2) #f)
+       (set! ctx.fillStyle (if (eq? (card-c card) "#") "#000" "#fff"))
+       (ctx.fill)
+       (ctx.closePath)
+
+       (ctx.beginPath)
+       (ctx.arc (+ x 2) (+ pos 8) 2 (* Math.PI 2) #f)
+       (set! ctx.fillStyle (if (eq? (card-d card) "#") "#000" "#fff"))
+       (ctx.fill)
+       (ctx.closePath)
+
+
+
+       ))
+   (card-loom-cards loom))
+
+
   (index-for-each
    (lambda (i card)
      (let ((direction (card-to-direction card))
            (colour (if (eq? (car (card-weave card)) "#") "black" "white")))
        (ctx.drawImage (find-image (string-append "tabwarp-" direction "-" colour ".png"))
-                      (* i 7) pos)))
+                      (+ (* i 7) 120) pos)))
    (card-loom-cards loom))
   (index-for-each
    (lambda (i card)
      (let ((direction (card-to-direction card))
            (colour (if (eq? (cadr (card-weave card)) "#") "black" "white")))
        (ctx.drawImage (find-image (string-append "tabwarp-" direction "-" colour ".png"))
-                      (+ (* i 7) 80) pos)))
+                      (+ (* i 7) 200) pos)))
    (card-loom-cards loom))
   loom)
 
