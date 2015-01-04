@@ -1,3 +1,19 @@
+;; -*- mode: scheme; -*-
+;; Coding Weaves Copyright (C) 2015 Dave Griffiths
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU Affero General Public License as
+;; published by the Free Software Foundation, either version 3 of the
+;; License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU Affero General Public License for more details.
+;;
+;; You should have received a copy of the GNU Affero General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 ;;     loom setup
 ;;  warp        weave
 ;;       ___
@@ -26,13 +42,14 @@
 (define (flip a)
   (if (equal? a "s") "z" "s"))
 
-(define (card angle a b d c) (list angle a b d c "f"))
+(define (card angle a b d c) (list angle a b d c "f" "f"))
 (define (card-angle c) (list-ref c 0))
 (define (card-a c) (list-ref c 1))
 (define (card-b c) (list-ref c 2))
 (define (card-d c) (list-ref c 3))
 (define (card-c c) (list-ref c 4))
 (define (card-memory c) (list-ref c 5))
+(define (card-previous-memory c) (list-ref c 6))
 (define (card-print c)
   (display (card-a c))(display " ")(display (card-b c))(newline)
   (display (card-d c))(display " ")(display (card-c c))(newline))
@@ -42,21 +59,24 @@
    (card-angle c)
    (card-d c) (card-a c)
    (card-c c) (card-b c)
-   "f"))
+   "f"
+   (card-memory c)))
 
 (define (card-back c)
   (list
    (card-angle c)
    (card-b c) (card-c c)
    (card-a c) (card-d c)
-   "b"))
+   "b"
+   (card-memory c)))
 
 (define (card-flip c)
   (list
    (flip (card-angle c))
    (card-b c) (card-a c)
    (card-c c) (card-d c)
-   (card-memory c)))
+   (card-memory c)
+   (card-previous-memory c)))
 
 (define (card-weave c)
   (if (equal? (card-memory c) "f")
@@ -119,9 +139,11 @@
 (define pos 10)
 
 (define (card-to-direction card)
-  (if (eq? (card-memory card) "b")
-      (if (eq? (card-angle card) "z") "front" "back")
-      (if (eq? (card-angle card) "z") "back" "front")))
+  (if (eq? (card-memory card) (card-previous-memory card))
+      (if (eq? (card-memory card) "b")
+          (if (eq? (card-angle card) "z") "s" "z")
+          (if (eq? (card-angle card) "z") "z" "s"))
+      "i"))
 
 (define (card-loom-weave-top loom)
   (define canvas (document.getElementById "canvas"))
@@ -256,21 +278,21 @@
                          "." "."))
                   (list "s"
                         "." "#"
-                        "." "." "f")))
+                        "." "." "f" "f")))
   (assert (equal? (card-forward
                    (card "s"
                          "#" "."
                          "." "#"))
                   (list "s"
                         "." "#"
-                        "#" "." "f")))
+                        "#" "." "f" "f")))
   (assert (equal? (card-back
                    (card "z"
                          "#" "#"
                          "." "."))
                   (list "z"
                         "#" "."
-                        "#" "." "b")))
+                        "#" "." "b" "f")))
   (assert (equal? (card-back
                    (card-back
                     (card "z"
@@ -278,7 +300,7 @@
                           "#" ".")))
                   (list "z"
                         "." "#"
-                        "." "#" "b")))
+                        "." "#" "b" "b")))
   (assert (equal? (card-forward
                    (card-forward
                     (card-forward
@@ -288,7 +310,7 @@
                             "2" "3")))))
                   (list "s"
                         "1" "4"
-                        "2" "3" "f")))
+                        "2" "3" "f" "f")))
 
   (assert (equal? (card-flip (card "s"
                                    "1" "2"
