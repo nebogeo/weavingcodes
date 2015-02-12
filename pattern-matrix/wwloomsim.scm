@@ -242,12 +242,12 @@
 (define weft-draft-start 15)
 (define warp-draft-start 14)
 
-(define (write-into-executable! start data)
+(define (set-draft! start data)
   (when (not (null? data))
 	(pdata-set! "x" start 
 		    (if (zero? (car data)) 
 			(vector 0 0 0) (vector 1 0 0)))
-	(write-into-executable! (+ start 1) (cdr data))))
+	(set-draft! (+ start 1) (cdr data))))
 
 (msg "hello")
 
@@ -257,7 +257,11 @@
   (pdata-set!
    "x" 11 (with-primitive
            weft
-           (pdata-ref "x" 12))))
+           (pdata-ref "x" 12)))
+  (pdata-set!
+   "x" 12 (with-primitive
+           weft
+           (pdata-ref "x" 13))))
 
  (with-primitive
   weft
