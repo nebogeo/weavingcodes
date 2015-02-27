@@ -191,14 +191,14 @@
      (let ((direction (card-to-direction card))
            (colour (if (eq? (car (card-weave card)) "#") "black" "white")))
        (ctx.drawImage (find-image (string-append "tabwarp-" direction "-" colour ".png"))
-                      (+ (* i 7) 120) pos)))
+                      (+ (* i 7) 280) pos)))
    (card-loom-cards loom))
   (index-for-each
    (lambda (i card)
      (let ((direction (card-to-direction card))
            (colour (if (eq? (cadr (card-weave card)) "#") "black" "white")))
        (ctx.drawImage (find-image (string-append "tabwarp-" direction "-" colour ".png"))
-                      (+ (* i 7) 200) pos)))
+                      (+ (* i 7) 450) pos)))
    (card-loom-cards loom))
   loom)
 
@@ -344,6 +344,39 @@
 (define loom
   (card-loom
    (list
+    (card "z"
+          "#" "#"
+          "." ".")
+    (card "z"
+          "#" "#"
+          "." ".")
+    (card "z"
+          "#" "#"
+          "." ".")
+    (card "z"
+          "#" "#"
+          "." ".")
+    (card "z"
+          "#" "#"
+          "." ".")
+    (card "z"
+          "#" "#"
+          "." ".")
+    (card "z"
+          "#" "#"
+          "." ".")
+    (card "z"
+          "#" "#"
+          "." ".")
+    (card "z"
+          "#" "#"
+          "." ".")
+    (card "z"
+          "#" "#"
+          "." ".")
+    (card "z"
+          "#" "#"
+          "." ".")
     (card "z"
           "#" "#"
           "." ".")
