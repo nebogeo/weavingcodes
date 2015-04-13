@@ -1,6 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; weavecoding raspberry pi installation
 
+;(scale 0.6)
 (rotate (vector 0 -45 0))
 (define weft (build-jellyfish 4096))
 (define warp (build-jellyfish 4096))

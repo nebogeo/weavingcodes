@@ -154,6 +154,13 @@ def draw_weave(time,kernel,warp_yarn,weft_yarn):
                 if time>y:
                     screen.blit(weft_sprite, rect)
 
+def kernel_from_blocks(b):
+    return kernel([
+            b[0]!=0,b[1]!=0,b[2]!=0,b[3]!=0,
+            b[8]!=0,b[9]!=0,b[10]!=0,b[11]!=0,
+            b[16]!=0,b[17]!=0,b[18]!=0,b[19]!=0,
+            b[24]!=0,b[25]!=0,b[26]!=0,b[27]!=0],4,4)
+
 emu = [2,0,0,0,0,0,0,0,
        2,0,0,0,0,0,0,0,
        0,0,8,2,0,0,0,0,
@@ -176,7 +183,8 @@ print(driver.read_all())
 
 while 1:
     yarn = lsys_from_blocks(driver.read_all())
-    #yarn = lsys_from_blocks(emu)
+    #yarn = "RB"
+    #k = kernel_from_blocks(driver.read_all())
     print(yarn)
     screen.fill([0,0,0])
     draw_weave(frame,k,yarn,yarn)
