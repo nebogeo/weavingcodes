@@ -17,11 +17,12 @@
          (weft-position (vector -20 0 0))
          (weft-t 0)
          (draft-pos 0)
-         (draft-size 4)
-         (draft 1) (d-b 0) (d-c 1) (d-d 0)
-         (d-e 0) (d-f 1) (d-g 0) (d-h 1)
-         (d-i 1) (d-j 0) (d-k 1) (d-l 0)
-         (d-m 0) (d-n 1) (d-o 0) (d-p 1)
+         (draft-size 5)
+         (draft 0) (d-b 0) (d-c 1) (d-d 0) (d-e 0)
+         (d-f 0) (d-g 0) (d-h 0) (d-i 0) (d-j 1)
+         (d-k 0) (d-l 1) (d-m 0) (d-n 0) (d-o 0)
+         (d-p 0) (d-q 0) (d-r 0) (d-s 1) (d-t 0)
+         (d-u 1) (d-v 0) (d-w 0) (d-x 0) (d-y 0)
          (weft-z (vector 0 0 0))
          (weft-count 0)
          (weft-total 21))
@@ -158,12 +159,13 @@
           (v 0)
           (weft-t 0)
           (draft-pos 0)
-          (draft-size 4)
-         (draft 1) (d-b 0) (d-c 1) (d-d 0)
-         (d-e 0) (d-f 1) (d-g 0) (d-h 1)
-         (d-i 1) (d-j 0) (d-k 1) (d-l 0)
-         (d-m 0) (d-n 1) (d-o 0) (d-p 1)
-         (last-t 0))
+          (draft-size 5)
+          (draft 0) (d-b 0) (d-c 1) (d-d 0) (d-e 0)
+          (d-f 0) (d-g 0) (d-h 0) (d-i 0) (d-j 1)
+          (d-k 0) (d-l 1) (d-m 0) (d-n 0) (d-o 0)
+          (d-p 0) (d-q 0) (d-r 0) (d-s 1) (d-t 0)
+          (d-u 1) (d-v 0) (d-w 0) (d-x 0) (d-y 0)
+          (last-t 0))
 
       (define build-quad
         (lambda (tl size)
@@ -244,8 +246,8 @@
 
 (define (set-draft! start data)
   (when (not (null? data))
-	(pdata-set! "x" start 
-		    (if (zero? (car data)) 
+	(pdata-set! "x" start
+		    (if (zero? (car data))
 			(vector 0 0 0) (vector 1 0 0)))
 	(set-draft! (+ start 1) (cdr data))))
 
