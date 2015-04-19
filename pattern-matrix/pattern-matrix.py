@@ -10,14 +10,11 @@ def read_all():
         bus.read_i2c_block_data(0x33,0)[1:6]+\
         bus.read_i2c_block_data(0x34,0)[1:6]+\
         bus.read_i2c_block_data(0x32,0)[1:6]+\
-        [0,0,0,0,0]
-
+        bus.read_i2c_block_data(0x36,0)[1:6]
 
 
 def send_weave_structure(blocks,last):
     weave = blocks
-    #conv = reduce(lambda r,e: r+"0 " if e==0 else r+"1 ",
-    #              weave,"")
 
     conv = ""
     for n,i in enumerate(weave):
@@ -28,8 +25,7 @@ def send_weave_structure(blocks,last):
 
     if last!=conv:
         last=conv
-        osc.Message("/eval",["(with-primitive warp \n  (set-draft! \n    warp-draft-start \n      (list "+conv+")))\n"+
-                         "(with-primitive weft \n  (set-draft! \n    weft-draft-start \n      (list "+conv+")))"]).sendlocal(8000)
+        osc.Message("/eval",["(update! (list "+conv+"))"]).sendlocal(8000)
     return last
 
 last = ""
