@@ -1,3 +1,22 @@
+// Copyright (C) 2015 Dave Griffiths
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+// pattern matrix avr firmware
+// reads the sensor data and makes it accessible to i2c devices
+
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdlib.h>
@@ -19,15 +38,14 @@ char buffer[3];
 #define PIN_CS2 PB2
 #define PIN_STATUS PB5
 
-#define SINGLE_SENSOR
-#define I2C_ID 0x34
-//#define DEBUG
+//#define SINGLE_SENSOR
+#define I2C_ID 0x36
 
 // 35
 // 33
 // 34
 // 32
-
+// 36
 
 void set_led_state(unsigned char s)
 {
@@ -47,8 +65,20 @@ void outputd(unsigned int pin, unsigned char s)
     else PORTD&=~_BV(pin);
 }
 
-#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+void index_sensor(unsigned int i) {
+  unsigned int bank=i/8;
+  unsigned int sensor=i%8;
 
+  PORTD=((sensor&0x07)<<5);
+
+  // set bits
+  PORTB|=0x07;
+  if (bank==0) outputb(PIN_CS0, 0);
+  else if (bank==1) outputb(PIN_CS1, 0);
+  else outputb(PIN_CS2, 0);
+}
+
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
 
 int main(void){
   	I2C_init(I2C_ID<<1); // initalize as slave with address 0x32
@@ -81,8 +111,8 @@ int main(void){
           i2cbuffer[i]=99;
         }
 
-        int bank = 0;
-        int sensor = 0;
+        int sensor = 1;
+        int i2c_index = 0;
 
 	while(1) {
 
@@ -103,13 +133,28 @@ int main(void){
           sensor++;
           if (sensor>4) sensor=0;
 
-#ifdef DEBUG
-          _delay_ms(5000);
-            outputb(PIN_STATUS, 1);
+#else // 4 sensors
+
+          _delay_ms(500);
+          outputb(PIN_STATUS, 0);
+
+          index_sensor(sensor);
+
           _delay_ms(100);
-            outputb(PIN_STATUS, 0);
-          _delay_ms(100);
-#endif
+          if (PINC&_BV(PIN_READ)) {
+            if (i2cbuffer[i2c_index]==1) outputb(PIN_STATUS, 1);
+            i2cbuffer[i2c_index]=0;
+          } else {
+            if (i2cbuffer[i2c_index]==0) outputb(PIN_STATUS, 1);
+            i2cbuffer[i2c_index]=1;
+          }
+
+          i2c_index++;
+          sensor+=4;
+          if (sensor>20) {
+            sensor=1;
+            i2c_index=0;
+          }
 
 #endif
 
