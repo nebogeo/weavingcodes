@@ -1,18 +1,30 @@
-import driver
+import smbus
 import time
 import osc
 
-driver.init()
+bus = smbus.SMBus(1)
 
-print(driver.read_all())
+def read_all():
+
+    return bus.read_i2c_block_data(0x35,0)[1:6]+\
+        bus.read_i2c_block_data(0x33,0)[1:6]+\
+        bus.read_i2c_block_data(0x34,0)[1:6]+\
+        bus.read_i2c_block_data(0x32,0)[1:6]+\
+        [0,0,0,0,0]
+
+
 
 def send_weave_structure(blocks,last):
-    weave = [blocks[0],blocks[1],blocks[2],blocks[3],
-             blocks[8],blocks[9],blocks[10],blocks[11],
-             blocks[16],blocks[17],blocks[18],blocks[19],
-             blocks[24],blocks[25],blocks[26],blocks[27]]
-    conv = reduce(lambda r,e: r+"0 " if e==0 else r+"1 ",
-                  weave,"")
+    weave = blocks
+    #conv = reduce(lambda r,e: r+"0 " if e==0 else r+"1 ",
+    #              weave,"")
+
+    conv = ""
+    for n,i in enumerate(weave):
+        conv+=str(i)+" "
+        if n%5==4: conv+="\n"
+
+    print conv
 
     if last!=conv:
         last=conv
@@ -23,5 +35,5 @@ def send_weave_structure(blocks,last):
 last = ""
 
 while 1:
-    last=send_weave_structure(driver.read_all(),last)
+    last=send_weave_structure(read_all(),last)
     time.sleep(0.5)
