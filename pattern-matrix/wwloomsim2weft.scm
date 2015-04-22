@@ -1,6 +1,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; weavecoding raspberry pi installation
 
+(synth-init 10 22050)
+
 (clear-colour (vector 1 1 1))
 
 ;(rotate (vector 0 -45 0))
@@ -9,8 +11,8 @@
 (define warp (build-jellyfish 4096))
 (define weave-scale (vector 0.2 -0.2 0.2))
 
-(define yarn-a (vector 1 1 1))
-(define yarn-b (vector 0.5 0.3 0.1))
+(define yarn-b (vector 1 1 1))
+(define yarn-a (vector 0.8 0.6 0.2))
 
 (define warp-yarn-a yarn-a)
 (define warp-yarn-b yarn-a)
@@ -309,19 +311,18 @@
         0 0 0 0 0
         0 0 0 0 0))
 
-(synth-init 20 44100)
-
 (define (sound-from-changes data)
   (for-each
    (lambda (a b)
      (if (not (eqv? a b))
-         (if (zero? a)
-             (play-now (mul (adsr 0 0.3 0 0)
-                            (sine (mul (adsr 0.1 0 0 0) 400))) 0)
-             (play-now (mul (adsr 0 0.3 0 0)
-                            (sine (mul (adsr 0 0.2 0 0) 400))) 0)
+         (if (zero? b)
+             (play-now (mul (adsr 0 0.3 1 0.1)
+                            (sine (mul (adsr 0.4 0 0 0) 800))) 0)
+             (play-now (mul (adsr 0 0.3 1 0.1)
+                            (sine (mul (adsr 0 0.8 0 0) 400))) 0)
              )))
-   old-data data))
+   old-data data)
+  (set! old-data data))
 
 (define (update! data)
   (sound-from-changes data)

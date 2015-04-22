@@ -1,0 +1,73 @@
+   '(let ((vertex positions-start)
+          (warp-end 0)
+          (warp-position (vector 0 0 0))
+          (v 0)
+          (weft-t 0)
+          (draft-pos 0)
+          (draft-size 5)
+         (draft 0) (d-b 0) (d-c 0) (d-d 0) (d-e 1)
+         (d-f 0) (d-g 0) (d-h 0) (d-i 1) (d-j 0)
+         (d-k 0) (d-l 0) (d-m 1) (d-n 0) (d-o 0)
+         (d-p 0) (d-q 1) (d-r 0) (d-s 0) (d-t 0)
+         (d-u 1) (d-v 0) (d-w 0) (d-x 0) (d-y 0)
+          (last-t 0))
+
+      ;;(trace (addr draft-size))
+
+      (define build-quad
+        (lambda (tl size)
+          (write! vertex
+                  tl (+ tl size)
+                  (+ tl (*v size (vector 1 0 0)))
+                  tl (+ tl size)
+                  (+ tl (*v size (vector 0 1 0))))
+          (set! vertex (+ vertex 6))))
+
+      ;; like weft but don't need to take account of direction
+      (define read-draft
+        (lambda ()
+          (read (+ (addr draft)
+                   (+ (* draft-pos draft-size)
+                      (modulo warp-end (+ draft-size (vector 0 1 1)) ))))))
+
+      (define animate-shed
+        (lambda (i)
+          (set! v (if (< weft-t 0.2)
+                      (vector 0 0 2)
+                      (if (> weft-t 0.8)
+                          (vector 0 0 -1.3)
+                          (vector 0 0 0))))
+          (set! warp-end 0)
+          (loop (< warp-end 20)
+                (when (< (read-draft) 0.5)
+                      (write-add! (- i 6) 0 v 0 0 v v
+                                  v 0 v v))
+                (set! i (+ i 24))
+                (set! warp-end (+ warp-end 1)))))
+
+      (define build-warp
+        (lambda ()
+          (set! vertex positions-start)
+          ;; build 4 segments X warp-ends
+          (set! warp-end 0)
+          (loop (< warp-end 20)
+                (set! warp-position (+ (vector -19 -35.5 0)
+                                       (* (vector 2 0 0) warp-end)))
+                (build-quad warp-position (vector 1.3 35 0))
+                (build-quad (+ warp-position (vector 0 35 0)) (vector 1.3 10 0))
+                (build-quad (+ warp-position (vector 0 45 0)) (vector 1.3 15 0))
+                (build-quad (+ warp-position (vector 0 60 0)) (vector 1.3 25 0))
+                (set! warp-end (+ warp-end 1)))))
+
+      (build-warp)
+      (forever
+       (set! vertex (+ positions-start 12))
+       (animate-shed vertex)
+
+       (when (> (- last-t weft-t) 0.1)
+             (set! draft-pos (+ draft-pos 1))
+             (when (> draft-pos draft-size) (set! draft-pos 0))
+             (build-warp))
+
+       (set! last-t weft-t)
+       ))
