@@ -4,17 +4,15 @@
 ;(synth-init 10 22050)
 
 (clear-colour (vector 1 1 1))
-(scale (vector 0.6 0.6 0.6))
 
-(rotate (vector 0 -45 0))
 (define weave-scale (vector 0.2 -0.2 0.2))
 
 (define yarn-b (vector 1 1 1))
 (define yarn-a (vector 0.8 0.6 0.2))
 (define yarn-c (vector 0.9 0.9 0.2))
 
-(define warp-yarn (list yarn-a yarn-b))
-(define weft-yarn (list yarn-a yarn-b))
+(define speed 60)
+(define jelly-primsize 4096)
 
 (define (load-code fn)
   (let* ((f (open-input-file fn))
@@ -36,13 +34,13 @@
 (define weft-program (load-code "weft.jelly"))
 
 (define (make-weft id yarn p-weft)
-  (let ((p (build-jellyfish 4096)))
+  (let ((p (build-jellyfish jelly-primsize)))
     (with-primitive
      p
-     (program-jelly 30 prim-triangles weft-program)
+     (program-jelly speed prim-triangles weft-program)
      (hint-unlit)
      (hint-wire)
-     (texture (load-texture "thread.png"))
+     (texture (load-texture "thread2.png"))
      (cond
       ((zero? id)
        (scale weave-scale)
@@ -71,13 +69,13 @@
 ; back section
 
 (define (make-warp yarn)
-  (let ((r (build-jellyfish 4096)))
+  (let ((r (build-jellyfish jelly-primsize)))
     (with-primitive
      r
      (program-jelly
       800 prim-triangles (load-code "warp.jelly"))
      (hint-unlit)
-     (texture (load-texture "thread.png"))
+     (texture (load-texture "thread2.png"))
      (scale weave-scale)
      (pdata-index-map! (lambda (i t)
                          (cond
@@ -222,26 +220,53 @@
 (define draft-pos 0)
 (define draft-size 5)
 
+(define warp-yarn (list yarn-a yarn-a yarn-b yarn-b yarn-b))
+(define weft-yarn (list yarn-a yarn-a yarn-b yarn-b yarn-b))
+
 (define loom
-  (make-loom
-   (make-warp warp-yarn)
-   (make-wefts weft-yarn)))
+  (with-state
+   (scale (vector 0.5 0.5 0.5))
+   (rotate (vector 0 -15 0))
+   (translate (vector -4 0 2))
+   (make-loom
+    (make-warp warp-yarn)
+    (make-wefts weft-yarn))))
+
+(define loom2
+  (with-state
+   (scale (vector 0.5 0.5 0.5))
+   (rotate (vector 0 15 0))
+   (translate (vector 4 0 2))
+   (make-loom
+    (make-warp warp-yarn)
+    (make-wefts weft-yarn))))
+
+(define start-pattern
+  (list
+   0 0 0 0 1
+   0 0 0 1 0
+   0 0 1 0 0
+   0 1 0 0 0
+   1 0 0 0 0))
+(define start-pattern2
+  (list
+   1 0 0 0 0
+   0 0 0 1 0
+   0 1 0 0 0
+   0 0 0 0 1
+   0 0 1 0 0))
 
 (every-frame
  (set! count-down (- count-down 1))
 
  (when (zero? count-down)
-       (loom-update! loom (list
-                      1 0 0 1 1
-                      1 1 0 1 0
-                      0 0 1 0 0
-                      0 1 0 1 1
-                      1 1 0 0 1)))
+       (loom-update! loom start-pattern)
+       (loom-update! loom2 start-pattern2))
 
  ;; little state machine
  ;; wefta warp weftb warp ...
  (set! timer (+ timer 1))
- (when (> timer 100)
+ (when (> timer 50)
        (set! timer 0)
        (set! count (+ count 1))
        (cond
@@ -249,12 +274,19 @@
          ;; weft time
          (set! weft-seq (modulo (+ weft-seq 1) (length (loom-wefts loom))))
          ; update weft machines
-         (loom-update-wefts loom))
+         (loom-update-wefts loom)
+         (loom-update-wefts loom2))
         (else
          ;; warp time
-         (loom-update-warp loom))))
+         (loom-update-warp loom)
+         (loom-update-warp loom2))))
  (with-primitive
   (car (loom-wefts loom))
   (when
    (< (vy (vtransform  (pdata-ref "x" 11) (get-transform))) 0)
-   (translate (vector 0 -0.01 0)))))
+   (translate (vector 0 -0.03 0))))
+ (with-primitive
+  (car (loom-wefts loom2))
+  (when
+   (< (vy (vtransform  (pdata-ref "x" 11) (get-transform))) 0)
+   (translate (vector 0 -0.03 0)))))

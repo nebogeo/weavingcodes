@@ -92,7 +92,7 @@
 
      (forever
       (set! vertex positions-start)
-      (loop (< vertex positions-end)
+      (loop (< vertex (+ positions-start 550))
             (when (not (eq? weft-seq last-weft-seq))
                   (set! last-weft-seq weft-seq)
                   (when (eq? weft-seq weft-id)
