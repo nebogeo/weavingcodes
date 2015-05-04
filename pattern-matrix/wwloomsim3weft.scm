@@ -1,105 +1,127 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; weavecoding raspberry pi installation
 
-(synth-init 10 22050)
+;(synth-init 10 22050)
 
 (clear-colour (vector 1 1 1))
+(scale (vector 0.6 0.6 0.6))
 
-;(rotate (vector 0 -45 0))
-(define weft (build-jellyfish 4096))
-(define weft2 (build-jellyfish 4096))
-(define warp (build-jellyfish 4096))
+(rotate (vector 0 -45 0))
 (define weave-scale (vector 0.2 -0.2 0.2))
 
 (define yarn-b (vector 1 1 1))
 (define yarn-a (vector 0.8 0.6 0.2))
+(define yarn-c (vector 0.9 0.9 0.2))
 
-(define warp-yarn-a yarn-a)
-(define warp-yarn-b yarn-b)
-(define weft-yarn-a yarn-a)
-(define weft-yarn-b yarn-b)
+(define warp-yarn (list yarn-a yarn-b))
+(define weft-yarn (list yarn-a yarn-b))
 
-(define weft-program (load "weft.jelly"))
+(define (load-code fn)
+  (let* ((f (open-input-file fn))
+         (r (read f)))
+    (close-input-port f) r))
 
-(with-primitive
- weft
- (program-jelly 30 prim-triangles weft-program)
- (hint-unlit)
- (hint-wire)
- (texture (load-texture "thread.png"))
- (scale weave-scale)
- (translate (vector 0.4 0 0))
- (pdata-index-map! (lambda (i t)
-                     (cond
-                      ((eqv? (modulo i 6) 0) (vector 0 0 0))
-                      ((eqv? (modulo i 6) 1) (vector 1 1 0))
-                      ((eqv? (modulo i 6) 2) (vector 1 0 0))
-                      ((eqv? (modulo i 6) 3) (vector 0 0 0))
-                      ((eqv? (modulo i 6) 4) (vector 1 1 0))
-                      ((eqv? (modulo i 6) 5) (vector 0 1 0))
-                      )) "t")
- (pdata-map! (lambda (c) weft-yarn-a) "c")
- (pdata-map! (lambda (n) (vector 0 0 0)) "n"))
+(define addr-weft-seq 12)
+(define addr-weft-draft-pos 13)
+(define addr-weft-id 14)
+(define addr-weft-draft 15)
+(define addr-weft-draft-size 43)
+(define addr-weft-selvedge-gap 46)
 
- (with-primitive
-  weft2
-  (parent weft)
-  (program-jelly 30 prim-triangles weft-program)
-  (hint-unlit)
-  (hint-wire)
-  (texture (load-texture "thread.png"))
-  (translate (vector 0 1.5 0))
-  (pdata-index-map! (lambda (i t)
-		      (cond
-		       ((eqv? (modulo i 6) 0) (vector 0 0 0))
-		       ((eqv? (modulo i 6) 1) (vector 1 1 0))
-		       ((eqv? (modulo i 6) 2) (vector 1 0 0))
-		       ((eqv? (modulo i 6) 3) (vector 0 0 0))
-		       ((eqv? (modulo i 6) 4) (vector 1 1 0))
-		       ((eqv? (modulo i 6) 5) (vector 0 1 0))
-		       )) "t")
-  (pdata-map! (lambda (c) weft-yarn-b) "c")
-  (pdata-map! (lambda (n) (vector 0 0 0)) "n"))
+(define addr-warp-draft-t 11)
+(define addr-warp-draft-pos 12)
+(define addr-warp-draft-size 13)
+(define addr-warp-draft 14)
 
+(define weft-program (load-code "weft.jelly"))
+
+(define (make-weft id yarn p-weft)
+  (let ((p (build-jellyfish 4096)))
+    (with-primitive
+     p
+     (program-jelly 30 prim-triangles weft-program)
+     (hint-unlit)
+     (hint-wire)
+     (texture (load-texture "thread.png"))
+     (cond
+      ((zero? id)
+       (scale weave-scale)
+       (translate (vector 0.4 0 0)))
+      (else
+       (identity)
+       (parent p-weft)
+       (translate (vector 0 (* id -1.5) 0))))
+
+     (pdata-index-map! (lambda (i t)
+                         (cond
+                          ((eqv? (modulo i 6) 0) (vector 0 0 0))
+                          ((eqv? (modulo i 6) 1) (vector 1 1 0))
+                          ((eqv? (modulo i 6) 2) (vector 1 0 0))
+                          ((eqv? (modulo i 6) 3) (vector 0 0 0))
+                          ((eqv? (modulo i 6) 4) (vector 1 1 0))
+                          ((eqv? (modulo i 6) 5) (vector 0 1 0))
+                          )) "t")
+     (pdata-map! (lambda (c) yarn) "c")
+     (pdata-map! (lambda (n) (vector 0 0 0)) "n"))
+    p))
 
 ; weave section
 ; top shed
 ; bottom shed
 ; back section
 
-(with-primitive
- warp
-  (program-jelly
-   800 prim-triangles (load "warp.jelly"))
+(define (make-warp yarn)
+  (let ((r (build-jellyfish 4096)))
+    (with-primitive
+     r
+     (program-jelly
+      800 prim-triangles (load-code "warp.jelly"))
+     (hint-unlit)
+     (texture (load-texture "thread.png"))
+     (scale weave-scale)
+     (pdata-index-map! (lambda (i t)
+                         (cond
+                          ((eqv? (modulo i 6) 0) (vector 0 0 0))
+                          ((eqv? (modulo i 6) 1) (vector 10 1 0))
+                          ((eqv? (modulo i 6) 2) (vector 0 1 0))
+                          ((eqv? (modulo i 6) 3) (vector 0 0 0))
+                          ((eqv? (modulo i 6) 4) (vector 10 1 0))
+                          ((eqv? (modulo i 6) 5) (vector 10 0 0))
+                          )) "t")
+     (pdata-index-map!
+      (lambda (i c)
+        (let ((i (modulo (quotient i 24) (length warp-yarn))))
+          (list-ref yarn i)))
+      "c")
+     (pdata-map! (lambda (n) (vector 0 0 0)) "n")
+     ) r))
 
- (hint-unlit)
- (texture (load-texture "thread.png"))
- (scale weave-scale)
- (pdata-index-map! (lambda (i t)
-                     (cond
-                      ((eqv? (modulo i 6) 0) (vector 0 0 0))
-                      ((eqv? (modulo i 6) 1) (vector 10 1 0))
-                      ((eqv? (modulo i 6) 2) (vector 0 1 0))
-                      ((eqv? (modulo i 6) 3) (vector 0 0 0))
-                      ((eqv? (modulo i 6) 4) (vector 10 1 0))
-                      ((eqv? (modulo i 6) 5) (vector 10 0 0))
-                      )) "t")
- (pdata-index-map! (lambda (i c) (if (< (modulo i 48) 24)
-                                     warp-yarn-a warp-yarn-b)) "c")
- (pdata-map! (lambda (n) (vector 0 0 0)) "n")
- )
+(define (addr-setv! prim addr v)
+  (with-primitive prim (pdata-set! "x" addr v)))
 
-(define (jellyfish-dma sprim src dprim dst)
-  (with-primitive
-   dprim
-   (pdata-set!
-    "x" dst (with-primitive
-             sprim
-             (pdata-ref "x" src)))))
+(define (addr-set! prim addr v)
+  (addr-setv! prim addr (vector v 0 0)))
 
 
-(define weft-draft-start 15)
-(define warp-draft-start 14)
+
+(define (make-wefts yarn-list)
+  (define root-weft (make-weft 0 (car yarn-list) #f))
+  (define i 0)
+  (cons
+   root-weft
+   (map
+    (lambda (yarn)
+      (set! i (+ i 1))
+      (make-weft (- (length yarn-list) i) yarn root-weft))
+    (cdr yarn-list))))
+
+
+(define (make-loom warp wefts)
+  (list warp wefts))
+
+
+(define (loom-warp l) (list-ref l 0))
+(define (loom-wefts l) (list-ref l 1))
 
 (define (set-draft! start data)
   (when (not (null? data))
@@ -108,10 +130,12 @@
 			(vector 0 0 0) (vector 1 0 0)))
 	(set-draft! (+ start 1) (cdr data))))
 
-(define (set-draft-all! data)
-  (with-primitive warp (set-draft! warp-draft-start data))
-  (with-primitive weft (set-draft! weft-draft-start data))
-  (with-primitive weft2 (set-draft! weft-draft-start data)))
+(define (set-draft-all! loom data)
+  (for-each
+   (lambda (weft)
+     (with-primitive weft (set-draft! addr-weft-draft data)))
+   (loom-wefts loom))
+  (with-primitive (loom-warp loom) (set-draft! addr-warp-draft data)))
 
 (define old-data
   (list 0 0 0 0 0
@@ -122,7 +146,7 @@
 (define (sound-from-changes data)
   (for-each
    (lambda (a b)
-     (if (not (eqv? a b))
+     (if (and #f (not (eqv? a b)))
          (if (zero? b)
              (play-now (mul (adsr 0 0.3 1 0.1)
                             (sine (mul (adsr 0.4 0 0 0) 800))) 0)
@@ -132,11 +156,8 @@
    old-data data)
   (set! old-data data))
 
-(define (update! data)
+(define (loom-update! loom data)
   (sound-from-changes data)
-
-  ;; draft pos offset
-  (with-primitive weft2 (pdata-set! "x" 14 (vector 1 0 0)))
 
   ;; if right/bottom border zero treat as 4X4 matrix
   (cond
@@ -151,11 +172,16 @@
          (zero? (list-ref data 24)))
 
     ;; draft size
-    (with-primitive weft (pdata-set! "x" 43 (vector 4 0 0)))
-    (with-primitive weft2 (pdata-set! "x" 43 (vector 4 0 0)))
-    (with-primitive warp (pdata-set! "x" 13 (vector 4 0 0)))
+    (set! draft-size 4)
+    (for-each
+     (lambda (weft)
+       (addr-set! weft addr-weft-draft-size 4))
+     (loom-wefts loom))
+    (addr-set! (loom-warp loom) addr-warp-draft-size 4)
+
     (msg "4x4")
     (set-draft-all!
+     loom
      (list (list-ref data 0) (list-ref data 1) (list-ref data 2) (list-ref data 3)
            (list-ref data 5) (list-ref data 6) (list-ref data 7) (list-ref data 8)
            (list-ref data 10) (list-ref data 11) (list-ref data 12) (list-ref data 13)
@@ -163,35 +189,69 @@
    (else
     (msg "5x5")
     ;; draft size 5x5
-    (with-primitive weft (pdata-set! "x" 43 (vector 5 0 0)))
-    (with-primitive weft2 (pdata-set! "x" 43 (vector 5 0 0)))
-    (with-primitive warp (pdata-set! "x" 13 (vector 5 0 0)))
-    (set-draft-all! data))))
+    (set! draft-size 5)
+    (for-each
+     (lambda (weft)
+       (addr-set! weft addr-weft-draft-size 5))
+     (loom-wefts loom))
+    (addr-set! (loom-warp loom) addr-warp-draft-size 5)
+    (set-draft-all! loom data))))
+
+
 
 (define count-down 50)
 
-(every-frame
- (jellyfish-dma weft 12 warp 11)
- (jellyfish-dma weft 13 warp 12)
+(define timer 101)
+(define count 0)
+(define weft-seq 0)
+(define draft-pos 0)
+(define draft-size 5)
 
+(define loom
+  (make-loom
+   (make-warp warp-yarn)
+   (make-wefts weft-yarn)))
+
+(every-frame
  (set! count-down (- count-down 1))
 
  (when (zero? count-down)
-       (update! (list
-                 0 0 0 1 1
-                 0 0 1 1 0
-                 0 1 1 0 0
-                 1 1 0 0 0
-                 1 0 0 0 1)))
+       (loom-update! loom (list
+                      1 0 0 1 1
+                      1 1 0 1 0
+                      0 0 1 0 0
+                      0 1 0 1 1
+                      1 1 0 0 1)))
+
+ ;; little state machine
+ ;; wefta warp weftb warp ...
+ (set! timer (+ timer 1))
+ (when (> timer 100)
+       (set! timer 0)
+       (set! count (+ count 1))
+       (cond
+        ((zero? (modulo count 2))
+         ;; weft time
+         (set! weft-seq (modulo (+ weft-seq 1) (length (loom-wefts loom))))
+         ; update weft machines
+         (define i 0)
+         (for-each
+          (lambda (weft)
+            (addr-set! weft addr-weft-seq weft-seq)
+            (addr-set! weft addr-weft-id i)
+            (addr-set! weft addr-weft-draft-pos draft-pos)
+            (addr-setv! weft addr-weft-selvedge-gap (vector 0 (* (length (loom-wefts loom)) 1.5) 0))
+
+            (set! i (+ i 1)))
+          (loom-wefts loom)))
+        (else
+         ;; warp time
+         (set! draft-pos (modulo (+ draft-pos 1) draft-size))
+         (addr-set! (loom-warp loom) addr-warp-draft-pos draft-pos)
+         (addr-set! (loom-warp loom) addr-warp-draft-t 0))))
 
  (with-primitive
-  weft
+  (car (loom-wefts loom))
   (when
    (< (vy (vtransform  (pdata-ref "x" 11) (get-transform))) 0)
-   (translate (vector 0 -0.1 0))
-   ;; (with-primitive
-   ;;  warp
-   ;;  (pdata-map!
-   ;;   (lambda (t) (vadd t (vector 0.03 0 0))) "t"))
-
-   )))
+   (translate (vector 0 -0.01 0)))))
