@@ -197,7 +197,22 @@
     (addr-set! (loom-warp loom) addr-warp-draft-size 5)
     (set-draft-all! loom data))))
 
+(define (loom-update-wefts loom)
+  (define i 0)
+  (for-each
+   (lambda (weft)
+     (addr-set! weft addr-weft-seq weft-seq)
+     (addr-set! weft addr-weft-id i)
+     (addr-set! weft addr-weft-draft-pos draft-pos)
+     (addr-setv! weft addr-weft-selvedge-gap (vector 0 (* (length (loom-wefts loom)) 1.5) 0))
 
+     (set! i (+ i 1)))
+   (loom-wefts loom)))
+
+(define (loom-update-warp loom)
+  (set! draft-pos (modulo (+ draft-pos 1) draft-size))
+  (addr-set! (loom-warp loom) addr-warp-draft-pos draft-pos)
+  (addr-set! (loom-warp loom) addr-warp-draft-t 0))
 
 (define count-down 50)
 
@@ -234,22 +249,10 @@
          ;; weft time
          (set! weft-seq (modulo (+ weft-seq 1) (length (loom-wefts loom))))
          ; update weft machines
-         (define i 0)
-         (for-each
-          (lambda (weft)
-            (addr-set! weft addr-weft-seq weft-seq)
-            (addr-set! weft addr-weft-id i)
-            (addr-set! weft addr-weft-draft-pos draft-pos)
-            (addr-setv! weft addr-weft-selvedge-gap (vector 0 (* (length (loom-wefts loom)) 1.5) 0))
-
-            (set! i (+ i 1)))
-          (loom-wefts loom)))
+         (loom-update-wefts loom))
         (else
          ;; warp time
-         (set! draft-pos (modulo (+ draft-pos 1) draft-size))
-         (addr-set! (loom-warp loom) addr-warp-draft-pos draft-pos)
-         (addr-set! (loom-warp loom) addr-warp-draft-t 0))))
-
+         (loom-update-warp loom))))
  (with-primitive
   (car (loom-wefts loom))
   (when
