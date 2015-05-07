@@ -34,9 +34,9 @@
       (define animate-shed
         (lambda (i)
           (set! v (if (< weft-t 0.2)
-                      (vector 0 0 1)
+                      (vector 0 0 0.1)
                       (if (> weft-t 0.8)
-                          (vector 0 0 -1)
+                          (vector 0 0 -0.1)
                           (vector 0 0 0))))
           (set! warp-end 0)
           (loop (< warp-end 20)

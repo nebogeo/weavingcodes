@@ -24,6 +24,12 @@
 
      (define read-draft
        (lambda ()
+
+         (trace weft-count)
+
+         ;(trace (modulo (if (> weft-direction 0)
+         ;           weft-count
+         ;           (- (- weft-total 1) weft-count))  (+ draft-size (vector 0 1 1))))
          (read
           (+ (addr draft)
              (+ (* draft-pos draft-size)
@@ -33,11 +39,11 @@
 
      (define calc-weft-z
        (lambda ()
-         (set! weft-count (+ weft-count 1))
          (set! weft-z
                (if (> (read-draft) 0.5)
                    (vector 0 0 0.01)
-                   (vector 0 0 -0.01)))))
+                   (vector 0 0 -0.01)))
+         (set! weft-count (+ weft-count 1))))
 
 
      (define right-selvedge
@@ -92,7 +98,7 @@
 
      (forever
       (set! vertex positions-start)
-      (loop (< vertex (+ positions-start 550))
+      (loop (< vertex (+ positions-start 1002))
             (when (not (eq? weft-seq last-weft-seq))
                   (set! last-weft-seq weft-seq)
                   (when (eq? weft-seq weft-id)

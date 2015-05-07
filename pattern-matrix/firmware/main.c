@@ -135,12 +135,12 @@ int main(void){
 
 #else // 4 sensors
 
-          _delay_ms(500);
+          _delay_ms(50);
           outputb(PIN_STATUS, 0);
 
           index_sensor(sensor);
 
-          _delay_ms(100);
+          _delay_ms(10);
           if (PINC&_BV(PIN_READ)) {
             if (i2cbuffer[i2c_index]==1) outputb(PIN_STATUS, 1);
             i2cbuffer[i2c_index]=0;
@@ -150,9 +150,9 @@ int main(void){
           }
 
           i2c_index++;
-          sensor+=4;
+          sensor++;
           if (sensor>20) {
-            sensor=1;
+            sensor=0;
             i2c_index=0;
           }
 
