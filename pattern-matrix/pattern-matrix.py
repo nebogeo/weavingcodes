@@ -23,17 +23,10 @@ def convert_quads(data):
         if bit==3:
             out.append(group)
             group=[]    
-
     # reorder
     out = [out[3], out[4], out[2], out[1], out[0]]
-
     # flip bits
     out = map(lambda i: [1-i[0],i[1],1-i[3],i[2]], out)
-
-    print "----"
-    print out[4][0], out[4][1]
-    print out[4][3], out[4][2]
-
     return out
 
 class block_state:
@@ -45,21 +38,28 @@ class block_state:
         
 def do_colour_change(v,state):
     decision = 0
+    dec=""
     if are_eq(v,[1,1,0,0]):
         decision = 1
+        dec="a"
     elif are_eq(v,[0,1,1,0]):
         decision = 2
+        dec="b"
     elif are_eq(v,[0,0,1,1]):
         decision = 3
+        dec="c"
     elif are_eq(v,[1,0,0,1]):
         decision = 4
-    
+        dec="d"
+
     if decision>0 and decision==state.last_decision:
         state.strength+=1
 
         if state.strength>10:
-            print "COLOUR SHIFT",decision
-            #osc.Message("/eval",["(loom-update! loom (list \n"+conv+"))"]).sendlocal(8000)
+            print "COLOUR SHIFT",dec
+            osc.Message("/eval",["(set-warp-yarn! loom warp-yarn-"+dec+")"
+                                 "(set-weft-yarn! loom weft-yarn-"+dec+")"]).sendlocal(8000)
+            state.strength=-100
 
     else: state.strength=0
 
@@ -96,7 +96,6 @@ def read_all(state):
     a.reverse()
     d.reverse()
     e=do_bottom_row(convert_quads(e),state)
-    print e
     return a+b+c+d+e
 
 def send_weave_structure(blocks,last):
