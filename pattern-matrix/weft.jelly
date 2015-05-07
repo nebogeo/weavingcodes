@@ -3,7 +3,7 @@
       (t 0)
       (v 0)
       (weft-direction (vector 2 0 0))
-      (weft-position (vector -20 0 0))
+      (weft-position (vector -22 0 0))
       (weft-seq 0)
       (draft-pos 0)
       (weft-id -1)
@@ -14,7 +14,7 @@
       (d-u 1) (d-v 0) (d-w 0) (d-x 0) (d-y 0)
       (weft-z (vector 0 0 0))
       (weft-count 0)
-      (weft-total 21)
+      (weft-total 22)
       (draft-size 5)
       (weaving 0)
       (last-weft-seq -1)
@@ -22,20 +22,15 @@
 
   ;(trace (addr selvedge-gap))
 
-     (define read-draft
-       (lambda ()
-
-         (trace weft-count)
-
-         ;(trace (modulo (if (> weft-direction 0)
-         ;           weft-count
-         ;           (- (- weft-total 1) weft-count))  (+ draft-size (vector 0 1 1))))
-         (read
-          (+ (addr draft)
-             (+ (* draft-pos draft-size)
-                (if (> weft-direction 0)
-                    (modulo weft-count (+ draft-size (vector 0 1 1)) )
-                    (modulo (- (- weft-total 1) weft-count) (+ draft-size (vector 0 1 1)) )))))))
+  (define read-draft
+    (lambda ()
+      (read
+       (+ (addr draft)
+          (+ (* draft-pos draft-size)
+             (modulo (if (> weft-direction 0)
+                         (+ weft-count 1)
+                         (- (- weft-total 1) weft-count))
+                     (+ draft-size (vector 0 1 1))))))))
 
      (define calc-weft-z
        (lambda ()
@@ -107,24 +102,27 @@
             (when (eq? weaving 1)
                   (calc-weft-z)
                   (set! weft-position (+ weft-position weft-direction))
-                  ;; selvedge time?
-                  (when (> weft-count weft-total)
-                        (set! weft-count 0)
-                        (set! weft-position (- (+ weft-position selvedge-gap)
-                                               weft-direction))
-                        (set! weft-direction (* weft-direction -1))
-                        (if (> 0 weft-direction)
-                            (right-selvedge selvedge-gap)
-                            (left-selvedge selvedge-gap))
-                        (set! weaving 0))
 
-                  (write! vertex
-                          (+ weft-z weft-position)
-                          (+ weft-position (+ weft-z (vector 2 1.3 0)))
-                          (+ weft-position (+ weft-z (vector 2 0 0)))
-                          (+ weft-z weft-position)
-                          (+ weft-position (+ weft-z (vector 2 1.3 0)))
-                          (+ weft-position (+ weft-z (vector 0 1.3 0))))
-                  (set! vertex (+ vertex 6)))
+                  ;; selvedge time?
+                  (cond
+                   ((> weft-count weft-total)
+                    (set! weft-count 0)
+                    (set! weft-position (- (+ weft-position selvedge-gap)
+                                           weft-direction))
+                    (set! weft-direction (* weft-direction -1))
+                    (if (> 0 weft-direction)
+                        (right-selvedge selvedge-gap)
+                        (left-selvedge selvedge-gap))
+                    (set! weaving 0)
+                    (set! weft-position (- weft-position weft-direction)))
+                   (else
+                    (write! vertex
+                            (+ weft-z weft-position)
+                            (+ weft-position (+ weft-z (vector 2 1.3 0)))
+                            (+ weft-position (+ weft-z (vector 2 0 0)))
+                            (+ weft-z weft-position)
+                            (+ weft-position (+ weft-z (vector 2 1.3 0)))
+                            (+ weft-position (+ weft-z (vector 0 1.3 0))))
+                    (set! vertex (+ vertex 6)))))
             ;;(set! t (+ t 0.01))
             )))
