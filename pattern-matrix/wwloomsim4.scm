@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; weavecoding raspberry pi installation
 
-;(synth-init 10 22050)
+(synth-init 10 22050)
 
 (clear-colour (vector 1 1 1))
 
@@ -10,19 +10,22 @@
 (define yarn-a (vector 0.8 0.6 0.2))
 (define yarn-b (vector 1 1 1))
 (define yarn-c (vector 0.9 0.9 0.2))
-(define yarn-d (vector 0 0 0.8))
+(define yarn-d (vector 0.3 0.3 1.0))
 
 (define warp-yarn-a (list yarn-b yarn-b))
-(define weft-yarn-a (list yarn-b yarn-b))
+(define weft-yarn-a (list yarn-d yarn-d))
 
-(define warp-yarn-b (list yarn-a yarn-c))
-(define weft-yarn-b (list yarn-a yarn-c))
+(define warp-yarn-b (list yarn-d yarn-b))
+(define weft-yarn-b (list yarn-d yarn-b))
 
-(define warp-yarn-c (list yarn-a yarn-a))
-(define weft-yarn-c (list yarn-b yarn-b))
+(define warp-yarn-c (list yarn-b yarn-d))
+(define weft-yarn-c (list yarn-d yarn-b))
 
-(define warp-yarn-d (list yarn-b yarn-b yarn-b yarn-b yarn-b yarn-d yarn-d yarn-d yarn-d yarn-d))
-(define weft-yarn-d (list yarn-d yarn-d))
+(define warp-yarn-d (list yarn-d yarn-d))
+(define weft-yarn-d (list yarn-d yarn-b))
+
+(define warp-yarn-e (list yarn-b yarn-b))
+(define weft-yarn-e (list yarn-d yarn-b))
 
 
 (define speed 60)
@@ -72,7 +75,7 @@
       (else
        (identity)
        (parent p-weft)
-       (translate (vector 0 (* id -1.5) 0))))
+       (translate (vector 0 (* id -1.5) (* id -0.001)))))
 
      (pdata-index-map! (lambda (i t)
                          (cond
@@ -169,7 +172,7 @@
 (define (sound-from-changes data)
   (for-each
    (lambda (a b)
-     (if (and #f (not (eqv? a b)))
+     (if (and (not (eqv? a b)))
          (if (zero? b)
              (play-now (mul (adsr 0 0.3 1 0.1)
                             (sine (mul (adsr 0.4 0 0 0) 800))) 0)
@@ -295,6 +298,6 @@
  (with-primitive
   (car (loom-wefts loom))
   (when
-   (< (vy (vtransform  (pdata-ref "x" 11) (get-transform))) -1)
-   (translate (vector 0 -0.03 0))))
+   (< (vy (vtransform  (pdata-ref "x" 11) (get-transform))) -0.9)
+   (translate (vector 0 -0.05 0))))
  )
