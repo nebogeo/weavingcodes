@@ -1,0 +1,131 @@
+import Sound.OSC.FD
+import Data.Int
+
+let startosc = do x <- udpServer "192.168.0.2" 8000
+                  d <- dirtStream
+                  forkIO $ oscLoop x d
+    oscLoop x d = do m <- recvMessage x
+                     act m d
+                     oscLoop x d
+    act (Just (Message "/matrix" is)) d = 
+      do let toGrid [] = []
+             toGrid xs = (take 5 xs) : (toGrid (drop 5 xs))
+             ss = ["kurt","newnotes","glitch","can","diphone2","bottle"]
+             toSample n = ss !! ((floor n) `mod` length ss)
+             removeZeros (0:xs) = xs
+             removeZeros xs = xs
+             grid = toGrid $ map (\(Int32 i) -> fromIntegral $ i) is
+             control n = grid !! 4 !! n == 0
+             val n = grid !! 4 !! n
+             speedbit = control 2
+             randdrop = control 3
+             revbit = control 4
+             samp = toSample (val 1)
+             pats = map (listToPat . reverse . removeZeros . reverse) grid
+             pat = sound ((samples (p $ samp ++ "*"++ (show $ val 0)) (run (floor $ (val 0)*2))))
+             pat' | revbit = jux (iter 4) pat -- rev pat
+                  | otherwise = pat
+             pat'' | randdrop = degrade pat'
+                   | otherwise = pat'
+             pat''' | speedbit = pat'' |+| speed "0.5"
+                    | otherwise = pat''
+             heddlerods = map (gain) (take 4 pats)
+         putStrLn $ show grid
+         putStrLn $ show $ val 1
+         putStrLn $ samp
+         d $ weave (toRational $ val 0) pat''' heddlerods
+    act _ _ = return ()
+  in
+    startosc
+
+me <- openUDP "192.168.0.2" 8000
+
+cps 0.5
+
+sendOSC me $ Message "/matrix" $ map int32 [1,0,0,0,1,
+                                            0,0,0,0,0,
+                                            0,0,0,0,0,
+                                            0,0,0,0,0,                                            1,2,1,1,1
+                                           ]
+
+
+
+cps 0.5
+
+d1 $ jux (iter 4) $ (every 2 (chop 8) $ sound "pad:3")
+  |+| speed "[2 3]/2"
+
+
+d <- stream "127.0.0.1" 7771 dirt
+
+d1 $ sound "cp8*2"
+  |+| gain "1.4"
+  
+hush
+
+cps 0.9
+
+
+
+d1 $ jux (iter 4) $ every 4 (chop 6) $ slow 2 $ sound "pad:7"
+
+d2 $ every 2 (rev) $ chop 8 $ every 4 (density 1.5) $ sound "wobble kurt"
+  |+| gain "1"
+  |+| accelerate "-4"
+
+d3 $ slow 2 $ superimpose (density 1.5) $ jux (iter 4) $ chop 3 $ sound "bd*2 arpy ~ arpy:4"
+  |+| gain "1.1"
+  |+| speed "0.5"
+
+d4 $ iter 4 $ every 4 (density 2) $ every 2 (|+| speed "0.9") $ jux (rev . iter 4) $ slow 4 $ striate 8 $ sound "breaks165 breaks125"
+  |+| gain "1.1"
+
+d5 $ jux (iter 4) $ slow 32 $ striate 128 $ sound "bev*2"
+  |+| speed "[1]"
+  |+| gain "1.2"
+
+
+
+d8 $ sound "drum"
+
+cps 1.1
+
+d5 $ jux ((|+| speed "0.75") . (0.5 <~)) $ smash 4 [1,2] $ sound (samples "alphabet" (irand 26)) |+| speed "1"
+
+d6 $ slow 8 $ juxBy 0.25 (iter 4) $ slowspread (stut 3 0.9) [1/16,1/8,1/4,1/2] $ brak $ sound "bd*2 bd:2 bd*4 bd*8"
+  |+| speed "3.9"
+
+
+d9 $ slow 2 $ slowspread (stut 6 0.9) [0.5, 0.25, -0.25, 1.25] $ juxBy 0.25 (0.25 <~) $ slow 4 $ superimpose (density 1.5 . iter 4) $ every 4 (rev . chop 8) $ weave' 4 (sound (samples "bd*8" (run 8)))
+  [--(vowel "a e i" |+|),
+   (speed ((/2) <$> "[0.5*3 3*3 2]") |+|),
+   --(vowel "a [e o] i" |+|),
+   (speed ((/2) <$> "[0.5, 0.5 1.5*4]") |+|),
+   rev
+   ]
+  |+| gain "1"
+
+
+d3 $ weave 16 (vowel "a e i o u")
+  [sound "fms:2(3,4) fms:2(3,5)",
+   sound "fms:2(3,5) fms:2(3,4)",
+   slowspread (stut 4 0.9) [0.02, 1, 0.025, 2] $ sound "arpy bd sn*4"
+  ] |+| gain "0.8"
+
+
+d8 $ (slow 16 $ striate 16 $ sound "fm:3*4")
+  |+| speed (scale 1 2 sine1)
+
+d7 $ sound "[drum*3,future,bd,~ wobble] [drum:1,sd8:4 [bass3:7*3]/4 [sd8:1 ~ sd8:4]]"
+  |+| speed "2"
+
+d1 $ every 8 rev $ sound "[bd(3,13), cp:2 ~ ~ miniyeah:2 ~ ~ ~ bd]"
+  |+| speed "2"
+
+d2 $ weave' 1 (sound (samples "ifdrums*8" (slow 8 $ scan 8)))
+  [id, iter 16]
+  |+| speed "2"
+
+d1 $ sound (samples "speech*4 sb" (irand 7))
+
+hush
