@@ -1,5 +1,5 @@
 ; lz/nz
-(synth-init 50 44100)
+(synth-init 50 22050)
 
 (define (lz pat)
   (vector pat 0))
@@ -195,7 +195,8 @@
       (set! humanize #f)
       (set! humanize #t))
 
-  (set-nz-vals! z (list (list-ref e 4)))
+  (msg (list-ref e 4))
+  (set-nz-vx! z (modulo (list-ref e 4) (length ss)))
 
   )
 
