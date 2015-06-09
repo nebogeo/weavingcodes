@@ -27,6 +27,15 @@
 (define warp-yarn-e (list yarn-b yarn-b))
 (define weft-yarn-e (list yarn-d yarn-b))
 
+(define warp-yarn-f (list yarn-a yarn-d))
+(define weft-yarn-f (list yarn-a yarn-b))
+
+(define warp-yarn-g (list yarn-a yarn-b))
+(define weft-yarn-g (list yarn-d yarn-c))
+
+(define warp-yarn-h (list yarn-c yarn-c))
+(define weft-yarn-h (list yarn-d yarn-b))
+
 
 (define speed 60)
 (define jelly-primsize 4096)

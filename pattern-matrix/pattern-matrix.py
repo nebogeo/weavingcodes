@@ -39,18 +39,30 @@ class block_state:
 def do_colour_change(v,state):
     decision = 0
     dec=""
-    if are_eq(v,[1,1,0,0]):
+    if are_eq(v,[1,0,0,0]):
         decision = 1
         dec="a"
-    elif are_eq(v,[0,1,1,0]):
+    elif are_eq(v,[0,1,0,0]):
         decision = 2
         dec="b"
-    elif are_eq(v,[0,0,1,1]):
+    elif are_eq(v,[0,0,1,0]):
         decision = 3
         dec="c"
-    elif are_eq(v,[1,0,0,1]):
+    elif are_eq(v,[0,0,0,1]):
         decision = 4
         dec="d"
+    if are_eq(v,[0,1,1,1]):
+        decision = 5
+        dec="e"
+    elif are_eq(v,[1,0,1,1]):
+        decision = 6
+        dec="f"
+    elif are_eq(v,[1,1,0,1]):
+        decision = 7
+        dec="g"
+    elif are_eq(v,[1,1,1,0]):
+        decision = 8
+        dec="h"
 
     if decision>0 and decision==state.last_decision:
         state.strength+=1
