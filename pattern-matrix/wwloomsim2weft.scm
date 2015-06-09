@@ -5,7 +5,8 @@
 
 (clear-colour (vector 1 1 1))
 
-;(rotate (vector 0 -45 0))
+;;(scale (vector 0.5 0.5 0.5))
+(rotate (vector 0 -45 0))
 (define weft (build-jellyfish 4096))
 (define weft2 (build-jellyfish 4096))
 (define warp (build-jellyfish 4096))
@@ -142,7 +143,7 @@
 
 (with-primitive
  weft
- (program-jelly 30 prim-triangles weft-program)
+ (program-jelly 100 prim-triangles weft-program)
  (hint-unlit)
  (hint-wire)
  (texture (load-texture "thread.png"))
@@ -188,8 +189,8 @@
 
 (with-primitive
  warp
-  (program-jelly
-   800 prim-triangles
+ (program-jelly
+   500 prim-triangles
    '(let ((vertex positions-start)
           (warp-end 0)
           (warp-position (vector 0 0 0))
@@ -197,11 +198,11 @@
           (weft-t 0)
           (draft-pos 0)
           (draft-size 5)
-         (draft 0) (d-b 0) (d-c 0) (d-d 0) (d-e 1)
-         (d-f 0) (d-g 0) (d-h 0) (d-i 1) (d-j 0)
-         (d-k 0) (d-l 0) (d-m 1) (d-n 0) (d-o 0)
-         (d-p 0) (d-q 1) (d-r 0) (d-s 0) (d-t 0)
-         (d-u 1) (d-v 0) (d-w 0) (d-x 0) (d-y 0)
+         (draft 1) (d-b 1) (d-c 1) (d-d 1) (d-e 1)
+         (d-f 1) (d-g 1) (d-h 1) (d-i 1) (d-j 1)
+         (d-k 1) (d-l 1) (d-m 1) (d-n 1) (d-o 1)
+         (d-p 1) (d-q 1) (d-r 1) (d-s 1) (d-t 1)
+         (d-u 1) (d-v 1) (d-w 1) (d-x 1) (d-y 1)
           (last-t 0))
 
       ;;(trace (addr draft-size))
@@ -301,7 +302,7 @@
 	(set-draft! (+ start 1) (cdr data))))
 
 (define (set-draft-all! data)
-  (with-primitive warp (set-draft! warp-draft-start data))
+  ;(with-primitive warp (set-draft! warp-draft-start data))
   (with-primitive weft (set-draft! weft-draft-start data))
   (with-primitive weft2 (set-draft! weft-draft-start data)))
 
@@ -362,6 +363,12 @@
 
 (define count-down 50)
 
+(with-primitive warp (set-draft! warp-draft-start 
+				 (list 0 0 0 0 0
+				       0 0 0 0 0
+				       0 0 0 0 0
+				       0 0 0 0 0)))
+		
 (every-frame
  (jellyfish-dma weft 12 warp 11)
  (jellyfish-dma weft 13 warp 12)
@@ -384,6 +391,6 @@
    ;; (with-primitive
    ;;  warp
    ;;  (pdata-map!
-   ;;   (lambda (t) (vadd t (vector 0.03 0 0))) "t"))
+   ;;   (lambda (t) (vadd t (vector 0.3 0 0))) "t"))
 
    )))
