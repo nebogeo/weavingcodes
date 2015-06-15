@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; weavecoding raspberry pi installation
 
-(synth-init 10 44100)
+(synth-init 10 22010)
 
 (clear-colour (vector 1 1 1))
 
@@ -24,16 +24,16 @@
 (define warp-yarn-d (list yarn-d yarn-d))
 (define weft-yarn-d (list yarn-d yarn-b))
 
-(define warp-yarn-e (list yarn-b yarn-b))
-(define weft-yarn-e (list yarn-d yarn-b))
+(define warp-yarn-e (list yarn-a yarn-b yarn-c yarn-c))
+(define weft-yarn-e (list yarn-c yarn-b))
 
-(define warp-yarn-f (list yarn-a yarn-d))
-(define weft-yarn-f (list yarn-a yarn-b))
+(define warp-yarn-f (list yarn-a yarn-a yarn-c yarn-c))
+(define weft-yarn-f (list yarn-a yarn-c))
 
-(define warp-yarn-g (list yarn-a yarn-b))
-(define weft-yarn-g (list yarn-d yarn-c))
+(define warp-yarn-g (list yarn-a yarn-b yarn-b yarn-b))
+(define weft-yarn-g (list yarn-a yarn-c))
 
-(define warp-yarn-h (list yarn-c yarn-c))
+(define warp-yarn-h (list yarn-b yarn-b))
 (define weft-yarn-h (list yarn-d yarn-b))
 
 
@@ -232,7 +232,12 @@
     (addr-set! (loom-warp loom) addr-warp-draft-size 5)
     (set-draft-all! loom data))))
 
+(set-scale (list 2 2 1 1 1 2))
+
 (define (loom-update-wefts loom)
+  (play-now (mul (adsr 0.1 0.05 0.2 2)
+		 (mul (sine (note (* draft-pos 2)))
+		      (sine (note (+ 5 (* draft-pos 2)))))) 0)
   (define i 0)
   (for-each
    (lambda (weft)

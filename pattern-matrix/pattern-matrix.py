@@ -69,9 +69,11 @@ def do_colour_change(v,state):
 
         if state.strength>10:
             print "COLOUR SHIFT",dec
-            osc.Message("/eval",["(set-warp-yarn! loom warp-yarn-"+dec+")"
+            osc.Message("/eval",["(play-now (mul (adsr 0 0.1 1 0.1)"+
+                                 "(sine (mul (sine 30) 800))) 0)"+
+                                 "(set-warp-yarn! loom warp-yarn-"+dec+")"+
                                  "(set-weft-yarn! loom weft-yarn-"+dec+")"]).sendlocal(8000)
-            state.strength=-100
+            state.strength=-9999999999999
 
     else: state.strength=0
 

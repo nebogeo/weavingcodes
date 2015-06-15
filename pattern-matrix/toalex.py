@@ -113,7 +113,10 @@ def send_weave_structure(blocks,last):
     if last!=conv:
         print conv
         last=conv
-        osc.Message("/matrix",blocks).sendto("192.168.0.2",8000)
+        try:
+            osc.Message("/matrix",blocks).sendto("192.168.0.2",8000)
+        except Exception:
+            pass
     return last
 
 
