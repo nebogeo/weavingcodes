@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; weavecoding raspberry pi installation
 
-(synth-init 10 44100)
+(synth-init "fluxa" 44100 2048 20)
 
 (clear-colour (vector 1 1 1))
 
@@ -39,9 +39,8 @@
 (define addr-weft-seq 12)
 (define addr-weft-draft-pos 13)
 (define addr-weft-id 14)
-(define addr-weft-draft 15)
-(define addr-weft-draft-size 43)
-(define addr-weft-selvedge-gap 46)
+(define addr-weft-draft-size 18)
+(define addr-weft-selvedge-gap 21)
 
 (define addr-warp-draft-t 11)
 (define addr-warp-draft-pos 12)
@@ -87,7 +86,8 @@
                           ((eqv? (modulo i 6) 5) (vector 0 1 0))
                           )) "t")
      (pdata-map! (lambda (c) yarn) "c")
-     (pdata-map! (lambda (n) (vector 0 0 0)) "n"))
+;     (pdata-map! (lambda (n) (vector 0 0 0)) "n")
+     )
     p))
 
 (define (set-warp-yarn! loom yarn)
@@ -117,7 +117,7 @@
                           ((eqv? (modulo i 6) 4) (vector 10 1 0))
                           ((eqv? (modulo i 6) 5) (vector 10 0 0))
                           )) "t")
-     (pdata-map! (lambda (n) (vector 0 0 0)) "n")
+;     (pdata-map! (lambda (n) (vector 0 0 0)) "n")
      )
     r))
 
@@ -151,15 +151,15 @@
 
 (define (set-draft! start data)
   (when (not (null? data))
-	(pdata-set! "x" start
-		    (if (zero? (car data))
-			(vector 0 0 0) (vector 1 0 0)))
-	(set-draft! (+ start 1) (cdr data))))
+     (pdata-set! "n" start
+         (if (zero? (car data))
+             (vector 0 0 0) (vector 1 0 0)))
+     (set-draft! (+ start 1) (cdr data))))
 
 (define (set-draft-all! loom data)
   (for-each
    (lambda (weft)
-     (with-primitive weft (set-draft! addr-weft-draft data)))
+     (with-primitive weft (set-draft! 10 data)))
    (loom-wefts loom))
   (with-primitive (loom-warp loom) (set-draft! addr-warp-draft data)))
 
@@ -181,6 +181,16 @@
              )))
    old-data data)
   (set! old-data data))
+
+(define (loom-update-size! loom size data)
+  (set! draft-size size)
+  (for-each
+   (lambda (weft)
+     (addr-set! weft addr-weft-draft-size size))
+   (loom-wefts loom))
+  (addr-set! (loom-warp loom) addr-warp-draft-size size)
+  (set-draft-all!
+   loom data))
 
 (define (loom-update! loom data)
   (sound-from-changes data)
@@ -261,7 +271,7 @@
 
 (define start-pattern
   (list
-   0 0 0 0 1
+   1 0 0 0 1
    0 0 0 1 0
    0 0 1 0 0
    0 1 0 0 0

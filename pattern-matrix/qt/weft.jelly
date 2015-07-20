@@ -7,11 +7,6 @@
       (weft-seq 0)
       (draft-pos 0)
       (weft-id -1)
-      (draft 0) (d-b 0) (d-c 0) (d-d 0) (d-e 1)
-      (d-f 0) (d-g 0) (d-h 0) (d-i 1) (d-j 0)
-      (d-k 0) (d-l 0) (d-m 1) (d-n 0) (d-o 0)
-      (d-p 0) (d-q 1) (d-r 0) (d-s 0) (d-t 0)
-      (d-u 1) (d-v 0) (d-w 0) (d-x 0) (d-y 0)
       (weft-z (vector 0 0 0))
       (weft-count 0)
       (weft-total 22)
@@ -19,7 +14,8 @@
       (weaving 0)
       (last-weft-seq -1)
       (selvedge-gap (vector 0 4.5 0))
-      (draft-addr normals-start))
+      (draft-addr (+ normals-start 10)))
+
 
   ;(trace (addr selvedge-gap))
 
