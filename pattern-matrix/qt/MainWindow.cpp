@@ -21,4 +21,7 @@ MainWindow::MainWindow()
 
     m_Ui.verticalLayoutLoom->addWidget(view);
 
+    m_Ui.verticalLayoutMatrix->setSpacing(0);
+    m_Ui.verticalLayoutMatrix->setMargin(0);
+    m_Ui.verticalLayoutMatrix->setContentsMargins(0,0,0,0);
 }

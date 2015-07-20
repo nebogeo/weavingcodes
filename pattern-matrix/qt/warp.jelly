@@ -23,7 +23,6 @@
       ;; like weft but don't need to take account of direction
       (define read-draft
         (lambda ()
-          (trace draft-addr)
           (read (+ draft-addr
                    (+ (* draft-pos draft-size)
                       (modulo (+ warp-end 1)

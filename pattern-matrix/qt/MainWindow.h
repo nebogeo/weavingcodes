@@ -1,6 +1,5 @@
 #include <QtGui>
 #include "generated/ui_pattern-matrix.h"
-#include "generated/ui_matrix-toggle.h"
 
 #include <iostream>
 #include <string>
@@ -21,6 +20,13 @@ protected:
 private slots:
 
     void warp_change(int s) { m_size=s; rebuild(); }
+
+    void weft_colour1() {
+        QColor color = QColorDialog::getColor();
+        char t[2048];
+        snprintf(t,2048,"background-color: rgb(%i, %i, %i);",color.red(),color.green(),color.blue());
+        m_Ui.pushButton->setStyleSheet(QString(t));
+    }
 
     void button_pressed(bool s) {
         char first[4096];
@@ -53,13 +59,28 @@ private:
 
             for (int warp = 0; warp<m_size; warp++) {
                 QHBoxLayout *row_layout = new QHBoxLayout;
+                row_layout->setSpacing(0);
+                row_layout->setMargin(0);
+                row_layout->setContentsMargins(0,0,0,0);
+
                 for (int weft = 0; weft<m_size; weft++) {
-                    Ui_MatrixToggle mt;
-                    QWidget *w = new QWidget;
-                    mt.setupUi(w);
-                    connect(mt.pushButton, SIGNAL(toggled(bool)), this, SLOT(button_pressed(bool)));
-                    m_buttons.push_back(mt.pushButton);
-                    row_layout->addWidget(w);
+
+                    QPushButton *pushButton = new QPushButton();
+                    pushButton->setObjectName(QString::fromUtf8("pushButton"));
+                    QIcon icon;
+                    icon.addFile(QString::fromUtf8(":/images/images/black.png"), QSize(), QIcon::Normal, QIcon::Off);
+                    icon.addFile(QString::fromUtf8(":/images/images/white.png"), QSize(), QIcon::Normal, QIcon::On);
+                    pushButton->setIcon(icon);
+                    pushButton->setIconSize(QSize(64, 64));
+                    pushButton->setCheckable(true);
+                    pushButton->setContentsMargins(0,0,0,0);
+                    pushButton->setAutoFillBackground(false);
+                    pushButton->setStyleSheet("background-color: rgba(255,255,255,0%);");
+
+
+                    connect(pushButton, SIGNAL(toggled(bool)), this, SLOT(button_pressed(bool)));
+                    m_buttons.push_back(pushButton);
+                    row_layout->addWidget(pushButton);
                 }
                 m_Ui.verticalLayoutMatrix->addLayout(row_layout);
             }
