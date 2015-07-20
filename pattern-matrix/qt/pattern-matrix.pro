@@ -12,11 +12,13 @@ QT += core gui opengl
 # Input
 HEADERS += MainWindow.h \
            GLGraphicsScene.h \
+           SyntaxHighlight.h \
            generated/ui_pattern-matrix.h \
            generated/ui_matrix-toggle.h \
 
 SOURCES += MainWindow.cpp \
            GLGraphicsScene.cpp \
+           SyntaxHighlight.cpp \
            qtmain.cpp
 
 INCLUDEPATH += ../../../jellyfish/src/

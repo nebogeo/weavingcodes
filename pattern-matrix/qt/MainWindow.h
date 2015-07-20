@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include "interpreter.h"
+#include "SyntaxHighlight.h"
 
 using namespace std;
 
@@ -101,8 +102,14 @@ private slots:
         interpreter::eval(code);
     }
 
+    void eval() {
+        interpreter::eval(m_text_editor->toPlainText().toUtf8().constData());
+    }
+
 private:
     Ui_MainWindow m_Ui;
+    QTextEdit *m_text_editor;
+    SyntaxHighlight *m_highlighter;
 
     int m_size;
     vector<QPushButton*> m_buttons;
