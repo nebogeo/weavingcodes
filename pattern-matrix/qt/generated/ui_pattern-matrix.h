@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'pattern-matrixKF4993.ui'
+** Form generated from reading UI file 'pattern-matrixQy4993.ui'
 **
-** Created: Mon Jul 20 18:59:17 2015
+** Created: Mon Jul 20 19:22:21 2015
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef PATTERN_2D_MATRIXKF4993_H
-#define PATTERN_2D_MATRIXKF4993_H
+#ifndef PATTERN_2D_MATRIXQY4993_H
+#define PATTERN_2D_MATRIXQY4993_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -37,11 +37,11 @@ public:
     QLabel *label;
     QSpinBox *spinBoxWarp;
     QLabel *label_2;
-    QPushButton *pushButton;
-    QPushButton *pushButton_2;
+    QPushButton *pushButtonWeft1;
+    QPushButton *pushButtonWeft2;
     QLabel *label_3;
-    QPushButton *pushButton_3;
-    QPushButton *pushButton_4;
+    QPushButton *pushButtonWarp1;
+    QPushButton *pushButtonWarp2;
     QSpacerItem *horizontalSpacer_3;
     QGridLayout *gridLayout;
     QVBoxLayout *verticalLayout_2;
@@ -80,30 +80,30 @@ public:
 
         horizontalLayout_2->addWidget(label_2);
 
-        pushButton = new QPushButton(centralwidget);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        pushButtonWeft1 = new QPushButton(centralwidget);
+        pushButtonWeft1->setObjectName(QString::fromUtf8("pushButtonWeft1"));
 
-        horizontalLayout_2->addWidget(pushButton);
+        horizontalLayout_2->addWidget(pushButtonWeft1);
 
-        pushButton_2 = new QPushButton(centralwidget);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+        pushButtonWeft2 = new QPushButton(centralwidget);
+        pushButtonWeft2->setObjectName(QString::fromUtf8("pushButtonWeft2"));
 
-        horizontalLayout_2->addWidget(pushButton_2);
+        horizontalLayout_2->addWidget(pushButtonWeft2);
 
         label_3 = new QLabel(centralwidget);
         label_3->setObjectName(QString::fromUtf8("label_3"));
 
         horizontalLayout_2->addWidget(label_3);
 
-        pushButton_3 = new QPushButton(centralwidget);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
+        pushButtonWarp1 = new QPushButton(centralwidget);
+        pushButtonWarp1->setObjectName(QString::fromUtf8("pushButtonWarp1"));
 
-        horizontalLayout_2->addWidget(pushButton_3);
+        horizontalLayout_2->addWidget(pushButtonWarp1);
 
-        pushButton_4 = new QPushButton(centralwidget);
-        pushButton_4->setObjectName(QString::fromUtf8("pushButton_4"));
+        pushButtonWarp2 = new QPushButton(centralwidget);
+        pushButtonWarp2->setObjectName(QString::fromUtf8("pushButtonWarp2"));
 
-        horizontalLayout_2->addWidget(pushButton_4);
+        horizontalLayout_2->addWidget(pushButtonWarp2);
 
         horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -155,7 +155,10 @@ public:
 
         retranslateUi(MainWindow);
         QObject::connect(spinBoxWarp, SIGNAL(valueChanged(int)), MainWindow, SLOT(warp_change(int)));
-        QObject::connect(pushButton, SIGNAL(released()), MainWindow, SLOT(weft_colour1()));
+        QObject::connect(pushButtonWeft1, SIGNAL(released()), MainWindow, SLOT(weft_colour1()));
+        QObject::connect(pushButtonWeft2, SIGNAL(released()), MainWindow, SLOT(weft_colour2()));
+        QObject::connect(pushButtonWarp1, SIGNAL(released()), MainWindow, SLOT(warp_colour1()));
+        QObject::connect(pushButtonWarp2, SIGNAL(released()), MainWindow, SLOT(warp_colour2()));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -165,11 +168,11 @@ public:
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Weavecoding Pattern Matrix 0.1", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("MainWindow", "Draft size", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("MainWindow", "Weft colours", 0, QApplication::UnicodeUTF8));
-        pushButton->setText(QString());
-        pushButton_2->setText(QString());
+        pushButtonWeft1->setText(QString());
+        pushButtonWeft2->setText(QString());
         label_3->setText(QApplication::translate("MainWindow", "Warp colours", 0, QApplication::UnicodeUTF8));
-        pushButton_3->setText(QString());
-        pushButton_4->setText(QString());
+        pushButtonWarp1->setText(QString());
+        pushButtonWarp2->setText(QString());
     } // retranslateUi
 
 };
@@ -180,4 +183,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // PATTERN_2D_MATRIXKF4993_H
+#endif // PATTERN_2D_MATRIXQY4993_H

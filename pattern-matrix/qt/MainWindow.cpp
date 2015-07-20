@@ -24,4 +24,10 @@ MainWindow::MainWindow()
     m_Ui.verticalLayoutMatrix->setSpacing(0);
     m_Ui.verticalLayoutMatrix->setMargin(0);
     m_Ui.verticalLayoutMatrix->setContentsMargins(0,0,0,0);
+
+    m_warp_colour.push_back(QColor(255,255,255));
+    m_warp_colour.push_back(QColor(0,0,200));
+    m_weft_colour.push_back(QColor(255,255,255));
+    m_weft_colour.push_back(QColor(0,0,200));
+    update_interface_colours();
 }

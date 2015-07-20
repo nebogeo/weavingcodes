@@ -17,15 +17,70 @@ public:
 
 protected:
 
+    void update_colours() {
+        char t[2048];
+        snprintf(t,2048,"(set-weft-yarn! loom (list (vector %f %f %f) (vector %f %f %f)))",
+                 m_weft_colour[0].red()/255.0,
+                 m_weft_colour[0].green()/255.0,
+                 m_weft_colour[0].blue()/255.0,
+                 m_weft_colour[1].red()/255.0,
+                 m_weft_colour[1].green()/255.0,
+                 m_weft_colour[1].blue()/255.0);
+        interpreter::eval(t);
+        snprintf(t,2048,"(set-warp-yarn! loom (list (vector %f %f %f) (vector %f %f %f)))",
+                 m_warp_colour[0].red()/255.0,
+                 m_warp_colour[0].green()/255.0,
+                 m_warp_colour[0].blue()/255.0,
+                 m_warp_colour[1].red()/255.0,
+                 m_warp_colour[1].green()/255.0,
+                 m_warp_colour[1].blue()/255.0);
+        interpreter::eval(t);
+        update_interface_colours();
+    }
+
+    void update_interface_colours() {
+        char t[2048];
+        snprintf(t,2048,"background-color: rgb(%i, %i, %i);",
+                 m_weft_colour[0].red(),
+                 m_weft_colour[0].green(),
+                 m_weft_colour[0].blue());
+        m_Ui.pushButtonWeft1->setStyleSheet(QString(t));
+        snprintf(t,2048,"background-color: rgb(%i, %i, %i);",
+                 m_weft_colour[1].red(),
+                 m_weft_colour[1].green(),
+                 m_weft_colour[1].blue());
+        m_Ui.pushButtonWeft2->setStyleSheet(QString(t));
+        snprintf(t,2048,"background-color: rgb(%i, %i, %i);",
+                 m_warp_colour[0].red(),
+                 m_warp_colour[0].green(),
+                 m_warp_colour[0].blue());
+        m_Ui.pushButtonWarp1->setStyleSheet(QString(t));
+        snprintf(t,2048,"background-color: rgb(%i, %i, %i);",
+                 m_warp_colour[1].red(),
+                 m_warp_colour[1].green(),
+                 m_warp_colour[1].blue());
+        m_Ui.pushButtonWarp2->setStyleSheet(QString(t));
+    }
+
 private slots:
 
     void warp_change(int s) { m_size=s; rebuild(); }
 
     void weft_colour1() {
-        QColor color = QColorDialog::getColor();
-        char t[2048];
-        snprintf(t,2048,"background-color: rgb(%i, %i, %i);",color.red(),color.green(),color.blue());
-        m_Ui.pushButton->setStyleSheet(QString(t));
+        m_weft_colour[0] = QColorDialog::getColor();
+        update_colours();
+    }
+    void weft_colour2() {
+        m_weft_colour[1] = QColorDialog::getColor();
+        update_colours();
+    }
+    void warp_colour1() {
+        m_warp_colour[0] = QColorDialog::getColor();
+        update_colours();
+    }
+    void warp_colour2() {
+        m_warp_colour[1] = QColorDialog::getColor();
+        update_colours();
     }
 
     void button_pressed(bool s) {
@@ -51,6 +106,8 @@ private:
 
     int m_size;
     vector<QPushButton*> m_buttons;
+    vector<QColor> m_weft_colour;
+    vector<QColor> m_warp_colour;
 
     void rebuild() {
         if (m_size>0) {

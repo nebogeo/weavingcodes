@@ -37,14 +37,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="pushButtonWeft1">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="pushButtonWeft2">
           <property name="text">
            <string/>
           </property>
@@ -58,14 +58,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_3">
+         <widget class="QPushButton" name="pushButtonWarp1">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_4">
+         <widget class="QPushButton" name="pushButtonWarp2">
           <property name="text">
            <string/>
           </property>
@@ -176,7 +176,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton</sender>
+   <sender>pushButtonWeft1</sender>
    <signal>released()</signal>
    <receiver>MainWindow</receiver>
    <slot>weft_colour1()</slot>
@@ -191,9 +191,60 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButtonWeft2</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>weft_colour2()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonWarp1</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>warp_colour1()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>437</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonWarp2</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>warp_colour2()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>494</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>warp_change(int)</slot>
   <slot>weft_colour1()</slot>
+  <slot>weft_colour2()</slot>
+  <slot>warp_colour1()</slot>
+  <slot>warp_colour2()</slot>
  </slots>
 </ui>
