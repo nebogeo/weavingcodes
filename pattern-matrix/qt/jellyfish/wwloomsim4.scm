@@ -171,7 +171,7 @@
    (lambda (weft)
      (with-primitive weft (set-draft! 10 data)))
    (loom-wefts loom))
-  (with-primitive (loom-warp loom) (set-draft! addr-warp-draft data)))
+  (with-primitive (loom-warp loom) (set-draft! 10 data)))
 
 (define old-data
   (list 0 0 0 0 0
@@ -199,8 +199,7 @@
      (addr-set! weft addr-weft-draft-size size))
    (loom-wefts loom))
   (addr-set! (loom-warp loom) addr-warp-draft-size size)
-  (set-draft-all!
-   loom data))
+  (set-draft-all! loom data))
 
 (define (loom-update! loom data)
   (sound-from-changes data)

@@ -5,7 +5,7 @@
       (v 0)
       (weft-t 0)
       (draft-pos 0)
-      (draft-size 5)
+      (draft-size 4)
       (last-t 0)
       (draft-addr (+ normals-start 10)))
 
