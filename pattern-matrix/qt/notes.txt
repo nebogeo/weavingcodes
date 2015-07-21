@@ -1,0 +1,7 @@
+building mac bundle
+
+* copy jellyfish assets into pattern-matrix.app/Resources/jellyfish
+* copy wwloomsim4.scm, warp.jelly, weft.jelly into the same place
+
+qtdeployosx pattern-matrix.app
+
