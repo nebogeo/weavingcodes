@@ -22,8 +22,12 @@ SOURCES += MainWindow.cpp \
            qtmain.cpp
 
 INCLUDEPATH += ../../../jellyfish/src/
-LIBS += -ljellyfish -lportaudio -ljpeg -lglut -lfftw3 -lsndfile -llo -ldl -lpthread -lm
+LIBS += -ljellyfish -lportaudio -ljpeg -lpng -lfftw3 -lsndfile -llo -ldl -lpthread -lm 
 
 # assets
-DEFINES += ASSETS_PATH=\\\"/usr/local/lib/jellyfish/\\\"
+#DEFINES += ASSETS_PATH=\\\"/usr/local/lib/jellyfish/\\\"
+# mac bundling
+DEFINES += ASSETS_PATH=\\\"jellyfish/\\\"
 RESOURCES     = pattern-matrix.qrc
+
+macx:LIBS += -framework CoreFoundation
