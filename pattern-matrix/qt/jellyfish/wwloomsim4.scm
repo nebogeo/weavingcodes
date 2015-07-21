@@ -12,8 +12,8 @@
 (define yarn-c (vector 0.9 0.9 0.2))
 (define yarn-d (vector 0.3 0.3 1.0))
 
-(define warp-yarn-a (list yarn-b yarn-b))
-(define weft-yarn-a (list yarn-d yarn-d))
+(define warp-yarn-a (list yarn-b yarn-d))
+(define weft-yarn-a (list yarn-b yarn-d))
 
 (define warp-yarn-b (list yarn-d yarn-b))
 (define weft-yarn-b (list yarn-d yarn-b))
@@ -286,11 +286,10 @@
 
 (define start-pattern
   (list
-   1 0 0 0 1
-   0 0 0 1 0
-   0 0 1 0 0
-   0 1 0 0 0
-   1 0 0 0 0))
+   0 0 0 0
+   0 0 0 0
+   0 0 0 0
+   0 0 0 0))
 
 (every-frame
  (set! count-down (- count-down 1))

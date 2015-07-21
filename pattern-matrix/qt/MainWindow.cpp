@@ -57,5 +57,7 @@ MainWindow::MainWindow()
 
     m_Ui.horizontalLayoutEditContainer->addWidget(m_text_editor);
 
+    warp_change(4);
+
 
 }

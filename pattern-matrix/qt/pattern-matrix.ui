@@ -37,7 +37,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spinBoxWarp"/>
+             <widget class="QSpinBox" name="spinBoxWarp">
+              <property name="value">
+               <number>4</number>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QLabel" name="label_2">

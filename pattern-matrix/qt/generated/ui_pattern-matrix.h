@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'pattern-matrixVB4993.ui'
+** Form generated from reading UI file 'pattern-matrixMz4993.ui'
 **
-** Created: Mon Jul 20 21:01:47 2015
+** Created: Tue Jul 21 13:28:26 2015
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef PATTERN_2D_MATRIXVB4993_H
-#define PATTERN_2D_MATRIXVB4993_H
+#ifndef PATTERN_2D_MATRIXMZ4993_H
+#define PATTERN_2D_MATRIXMZ4993_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -89,6 +89,7 @@ public:
 
         spinBoxWarp = new QSpinBox(tab);
         spinBoxWarp->setObjectName(QString::fromUtf8("spinBoxWarp"));
+        spinBoxWarp->setValue(4);
 
         horizontalLayout_2->addWidget(spinBoxWarp);
 
@@ -211,7 +212,7 @@ public:
         QObject::connect(pushButtonWarp2, SIGNAL(released()), MainWindow, SLOT(warp_colour2()));
         QObject::connect(pushButtonEval, SIGNAL(released()), MainWindow, SLOT(eval()));
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -240,4 +241,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // PATTERN_2D_MATRIXVB4993_H
+#endif // PATTERN_2D_MATRIXMZ4993_H
