@@ -29,7 +29,7 @@ LIBS += -ljellyfish -lportaudio -ljpeg -lpng -lfftw3 -lsndfile -llo -ldl -lpthre
 # assets
 RESOURCES     = pattern-matrix.qrc
 
-unix {
+unix:!macx {
 DEFINES += ASSETS_PATH=\\\"/usr/local/lib/jellyfish/\\\"
 sources.path = /usr/local/lib/jellyfish/
 sources.files = jellyfish/*
@@ -41,4 +41,7 @@ INSTALLS += target
 macx {
 DEFINES += ASSETS_PATH=\\\"jellyfish/\\\"
 LIBS += -framework CoreFoundation
+sources.path = pattern-matrix.app/Contents/Resources/jellyfish
+sources.files = jellyfish/*
+INSTALLS += sources
 }
