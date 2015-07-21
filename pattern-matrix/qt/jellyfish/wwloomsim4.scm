@@ -41,7 +41,8 @@
 (define jelly-primsize 4096)
 
 (define (load-code fn)
-  (let* ((f (open-input-file fn))
+  (msg assets-path)
+  (let* ((f (open-input-file (string-append assets-path fn)))
          (r (read f)))
     (close-input-port f) r))
 

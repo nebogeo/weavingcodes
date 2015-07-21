@@ -21,13 +21,24 @@ SOURCES += MainWindow.cpp \
            SyntaxHighlight.cpp \
            qtmain.cpp
 
+# hmm, up and out to jellyfish...
 INCLUDEPATH += ../../../jellyfish/src/
-LIBS += -ljellyfish -lportaudio -ljpeg -lpng -lfftw3 -lsndfile -llo -ldl -lpthread -lm 
+
+LIBS += -ljellyfish -lportaudio -ljpeg -lpng -lfftw3 -lsndfile -llo -ldl -lpthread -lm
 
 # assets
-#DEFINES += ASSETS_PATH=\\\"/usr/local/lib/jellyfish/\\\"
-# mac bundling
-DEFINES += ASSETS_PATH=\\\"jellyfish/\\\"
 RESOURCES     = pattern-matrix.qrc
 
-macx:LIBS += -framework CoreFoundation
+unix {
+DEFINES += ASSETS_PATH=\\\"/usr/local/lib/jellyfish/\\\"
+sources.path = /usr/local/lib/jellyfish/
+sources.files = jellyfish/*
+INSTALLS += sources
+target.path = /usr/local/bin/
+INSTALLS += target
+}
+
+macx {
+DEFINES += ASSETS_PATH=\\\"jellyfish/\\\"
+LIBS += -framework CoreFoundation
+}

@@ -12,7 +12,7 @@
 using namespace std;
 
 int main( int argc , char *argv[] ){
-#ifdef __APPLE__    
+#ifdef __APPLE__
   CFBundleRef mainBundle = CFBundleGetMainBundle();
   CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
   char path[PATH_MAX];

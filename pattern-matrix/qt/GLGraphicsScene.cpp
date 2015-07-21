@@ -43,6 +43,7 @@ void GLGraphicsScene::drawBackground(QPainter* painter, const QRectF& rect) {
         graphics::load_texture_from_file(string(ASSETS_PATH),"thread.png");
         graphics::load_texture_from_file(string(ASSETS_PATH),"oolite-font.png");
 
+        interpreter::eval(string("(define assets-path \"")+string(ASSETS_PATH)+"\")");
         interpreter::eval_file(string(ASSETS_PATH)+"wwloomsim4.scm");
 
         first = false;
