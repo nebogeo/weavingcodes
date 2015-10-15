@@ -12,8 +12,8 @@
 (define yarn-c (vector 0.9 0.9 0.2))
 (define yarn-d (vector 0.3 0.3 1.0))
 
-(define warp-yarn-a (list yarn-b yarn-b))
-(define weft-yarn-a (list yarn-d yarn-d))
+(define warp-yarn-a (list yarn-b yarn-d))
+(define weft-yarn-a (list yarn-b yarn-d))
 
 (define warp-yarn-b (list yarn-d yarn-b))
 (define weft-yarn-b (list yarn-d yarn-b))
@@ -41,7 +41,8 @@
 (define jelly-primsize 4096)
 
 (define (load-code fn)
-  (let* ((f (open-input-file fn))
+  (msg assets-path)
+  (let* ((f (open-input-file (string-append assets-path fn)))
          (r (read f)))
     (close-input-port f) r))
 
@@ -170,7 +171,7 @@
    (lambda (weft)
      (with-primitive weft (set-draft! 10 data)))
    (loom-wefts loom))
-  (with-primitive (loom-warp loom) (set-draft! addr-warp-draft data)))
+  (with-primitive (loom-warp loom) (set-draft! 10 data)))
 
 (define old-data
   (list 0 0 0 0 0
@@ -198,8 +199,7 @@
      (addr-set! weft addr-weft-draft-size size))
    (loom-wefts loom))
   (addr-set! (loom-warp loom) addr-warp-draft-size size)
-  (set-draft-all!
-   loom data))
+  (set-draft-all! loom data))
 
 (define (loom-update! loom data)
   (sound-from-changes data)
@@ -285,11 +285,10 @@
 
 (define start-pattern
   (list
-   1 0 0 0 1
-   0 0 0 1 0
-   0 0 1 0 0
-   0 1 0 0 0
-   1 0 0 0 0))
+   0 0 0 0
+   0 0 0 0
+   0 0 0 0
+   0 0 0 0))
 
 (every-frame
  (set! count-down (- count-down 1))
