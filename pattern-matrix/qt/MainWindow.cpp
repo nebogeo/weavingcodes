@@ -12,6 +12,7 @@ MainWindow::MainWindow()
     m_Ui.setupUi(this);
     setUnifiedTitleAndToolBarOnMac(true);
     m_size=0;
+    dance_colour=0;
 
     QGraphicsView *view = new QGraphicsView;
     view->setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
@@ -59,5 +60,5 @@ MainWindow::MainWindow()
 
     warp_change(4);
 
-
+    setFocus();
 }
