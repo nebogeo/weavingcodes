@@ -83,7 +83,7 @@ rot n xs | n >= 0 = rot (n-1) $ tail xs ++ [head xs]
 tabby :: Int -> Int -> Weave
 tabby h w = warp h w ++ [TurnIn] ++ thread ([Over,Under]) h w
 
-twill = threadWeftBy (rot 1)
+twill x = threadWeftBy' [rot 1, rot 2] [x]
 
 twill4 w h = warp h w ++ [TurnIn] ++ twill ([Over,Over,Under,Under]) w h
 
@@ -210,4 +210,7 @@ draw' s (Under:xs) = hrule 1 <> draw' s xs
 main = mainWith $ ((frame 1 . lw medium . lc darkred . strokeT $ w ) :: Diagram B)
 
 -- w = (hrule 1 <> hrule 1) # rotateBy (1/4) <> hrule 1
-w = draw' TurnLeft (tabby 4 4)
+w = draw' TurnLeft (twill4 16 16)
+
+
+
