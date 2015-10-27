@@ -1,9 +1,19 @@
-{-# LANGUAGE TypeSynonymInstances, FlexibleInstances,OverlappingInstances #-}
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances,OverlappingInstances, NoMonomorphismRestriction #-}
+
 
 module Behaviour where
 
 import Data.List
 import Control.Concurrent (threadDelay)
+
+import Diagrams.Prelude
+import Diagrams.Backend.SVG.CmdLine
+
+
+-- | The weaving actions that we are representing.
+-- @Pull@ takes the thread in the current direction, by the given number of units.
+-- @TurnIn@ turns the thread 90 degrees, in the same direction as the last turn.
+-- @TurnOut@ turns the thread 90 degrees, in the opposite direction as the last turn.
 
 data Action = Pull Int | TurnIn | TurnOut | Over | Under
 
@@ -23,25 +33,23 @@ instance Show Action where
 type Weave = [Action]
 
 type Grid = [[String]]
+
 instance Show Grid
    where show g = concat $ intercalate ["\n"] g
 
 type Position = (Int,Int)
-data Direction = L | R | U | D
-instance Show Direction
+data Dir = L | R | U | D
+instance Show Dir
    where show L = "left"
          show R = "right"
          show U = "up"
          show D = "down"
 
 -- grid, position, last turn, direction
-type State = (Grid,Position,Move,Direction)
+type State = (Grid,Position,Move,Dir)
 instance Show State
    where show (g,p,m,d) = show g ++ "\n" ++ show p ++ ", " ++ show m ++ ", "
                             ++ show d ++ ", "
-
---tabby = [Pull 2,TurnBack,Turn R,Pull 2,Turn L,Turn L,Turn L,
---         Under,Over,Turn R,Turn R,Under,Over]
 
 warp :: Int -> Int -> Weave
 warp n l = take (n*3) $ cycle [Pull l,TurnOut,TurnIn]
@@ -61,21 +69,25 @@ threadWeftBy' :: [[Action] -> [Action]] -> [[Action]] -> Int -> Int -> Weave
 threadWeftBy' _ _ 0 _ = []
 threadWeftBy' _ _ _ 0 = []
 threadWeftBy' (f:fs) (actions:actionss) l r =
-  take l (cycle actions) ++ [TurnOut,TurnIn] ++ threadWeftBy' (fs ++ [f]) (actionss ++ [take (length actions) $ drop l $ (cycle $ reverse $ f $ actions)]) l (r-1)
+  take l (cycle actions)
+  ++ [TurnOut,TurnIn]
+  ++ threadWeftBy' (fs ++ [f])
+                   (actionss ++ [take (length actions) $ drop l $ (cycle $ reverse $ f $ actions)])
+                   l (r-1)
 
-rotate :: Int -> [a] -> [a]
-rotate 0 xs = xs
-rotate n xs | n >= 0 = rotate (n-1) $ tail xs ++ [head xs]
-            | otherwise = rotate (n+1) $ reverse $ tail (reverse xs) ++ [head $ reverse xs]
+rot :: Int -> [a] -> [a]
+rot 0 xs = xs
+rot n xs | n >= 0 = rot (n-1) $ tail xs ++ [head xs]
+         | otherwise = rot (n+1) $ reverse $ tail (reverse xs) ++ [head $ reverse xs]
 
 tabby :: Int -> Int -> Weave
 tabby h w = warp h w ++ [TurnIn] ++ thread ([Over,Under]) h w
 
-twill = threadWeftBy (rotate 1)
+twill = threadWeftBy (rot 1)
 
 twill4 w h = warp h w ++ [TurnIn] ++ twill ([Over,Over,Under,Under]) w h
 
-satin w h = warp h w ++ [TurnIn] ++ threadWeftBy' [drop 4,drop 1] ([pat, reverse (rotate 2 pat)]) w h
+satin w h = warp h w ++ [TurnIn] ++ threadWeftBy' [drop 4,drop 1] ([pat, reverse (rot 2 pat)]) w h
   where pat = [Over,Under,Under,Under,Under]
 
 -- trace w h = start w h
@@ -96,24 +108,23 @@ follow (grid, (x,y), move, R) (Pull n) = follow state' (Pull (n-1))
 
 follow (grid, coords, move, direction) Over =
   (grid', m coords direction, move, direction)
-  where grid' = withGridElem grid coords (superimpose (straight direction))
+  where grid' = withGridElem grid coords (superimpose (straightLine direction))
 
 follow (grid, coords, move, direction) Under =
   (grid', m coords direction, move, direction)
-  where grid' = withGridElem grid coords ((flip superimpose) (straight direction))
+  where grid' = withGridElem grid coords ((flip superimpose) (straightLine direction))
 
 follow (grid, coords@(x,y), move, direction) TurnIn = (grid', m coords direction', move, direction')
-  where grid' = setGridElem grid coords (turn direction move)
-        direction' = changeDirection direction move
+  where grid' = setGridElem grid coords (turnLine direction move)
+        direction' = changeDir direction move
         
 follow (grid, coords@(x,y), move, direction) TurnOut = (grid', m coords direction', move', direction')
   where move' = flipMove move
-        grid' = setGridElem grid coords (turn direction move')
-        direction' = changeDirection direction move'
+        grid' = setGridElem grid coords (turnLine direction move')
+        direction' = changeDir direction move'
 
 follows :: State -> [Action] -> State
-follows state [] = state
-follows state (a:as) = follows (follow state a) as
+follows = foldl follow
 
 followsIO :: State -> [Action] -> IO State
 followsIO state [] = return state
@@ -123,41 +134,41 @@ followsIO state (a:as) = do let (g, _, _, _) = state
                             state' <- followsIO (follow state a) as
                             return state'
 
-changeDirection :: Direction -> Move -> Direction
-changeDirection U TurnLeft  = L
-changeDirection U TurnRight = R
-changeDirection D TurnLeft  = R
-changeDirection D TurnRight = L
-changeDirection L TurnLeft  = D
-changeDirection L TurnRight = U
-changeDirection R TurnLeft  = U
-changeDirection R TurnRight = D
+changeDir :: Dir -> Move -> Dir
+changeDir U TurnLeft  = L
+changeDir U TurnRight = R
+changeDir D TurnLeft  = R
+changeDir D TurnRight = L
+changeDir L TurnLeft  = D
+changeDir L TurnRight = U
+changeDir R TurnLeft  = U
+changeDir R TurnRight = D
 
 flipMove TurnLeft  = TurnRight
 flipMove TurnRight = TurnLeft
 flipMove Straight  = Straight
 
-m :: Position -> Direction -> Position
+m :: Position -> Dir -> Position
 m (x,y) U = (x,y-1)
 m (x,y) D = (x,y+1)
 m (x,y) L = (x-1,y)
 m (x,y) R = (x+1,y)
 
-straight :: Direction -> String
-straight U = " | "
-straight D = " | "
-straight L = "---"
-straight R = "---"
+straightLine :: Dir -> String
+straightLine U = " | "
+straightLine D = " | "
+straightLine L = "---"
+straightLine R = "---"
 
-turn :: Direction -> Move -> String
-turn R TurnLeft  = "-' "
-turn R TurnRight = "-. "
-turn L TurnRight = " `-"
-turn L TurnLeft  = " .-"
-turn D TurnLeft  = " `-"
-turn D TurnRight = "-' "
-turn U TurnLeft  = "-. "
-turn U TurnRight = " .-"
+turnLine :: Dir -> Move -> String
+turnLine R TurnLeft  = "-' "
+turnLine R TurnRight = "-. "
+turnLine L TurnRight = " `-"
+turnLine L TurnLeft  = " .-"
+turnLine D TurnLeft  = " `-"
+turnLine D TurnRight = "-' "
+turnLine U TurnLeft  = "-. "
+turnLine U TurnRight = " .-"
 
 setElem :: [a] -> Int -> a -> [a]
 setElem xs i x = take (i) xs ++ [x] ++ drop (i+1) xs
@@ -169,7 +180,7 @@ withGridElem :: [[a]] -> (Int,Int) -> (a -> a) -> [[a]]
 withGridElem g (x,y) f = setElem g y (setElem (g !! y) x a)
   where a = f ((g !! y) !! x) 
 
-start w h = (grid w h,(0,0),TurnOut,D)
+-- start w h = (grid w h,(0,0),TurnOut,D)
 
 grid w h = take h (repeat (take w (repeat "   ")))
 
@@ -183,3 +194,20 @@ superimpose   _     _   = "xxx"
 draw n = follows (grid n n, (1,1), TurnRight, D)
 
 drawIO n = followsIO (grid n n, (1,1), TurnRight, D)
+
+draw' _ [] = mempty
+draw' s ((Pull n):xs) = hrule (fromIntegral n) <> draw' s xs
+
+draw' s@TurnLeft (TurnIn:xs) = hrule 1 <> draw' s xs # rotateBy (-1/4)
+draw' s@TurnRight (TurnIn:xs) = hrule 1 <> draw' s xs # rotateBy ((1/4)) 
+draw' s@TurnLeft (TurnOut:xs) = hrule 1 <> draw' (flipMove s) xs # rotateBy ((1/4)) 
+draw' s@TurnRight (TurnOut:xs) = hrule 1 <> draw' (flipMove s) xs # rotateBy (-(1/4)) 
+draw' s (Over:xs) = hrule 1 <> draw' s xs
+draw' s (Under:xs) = hrule 1 <> draw' s xs
+
+--  data Action = Pull Int | TurnIn | TurnOut | Over | Under
+
+main = mainWith $ ((frame 1 . lw medium . lc darkred . strokeT $ w ) :: Diagram B)
+
+-- w = (hrule 1 <> hrule 1) # rotateBy (1/4) <> hrule 1
+w = draw' TurnLeft (tabby 4 4)
