@@ -24,7 +24,7 @@ SOURCES += MainWindow.cpp \
 # hmm, up and out to jellyfish...
 INCLUDEPATH += ../../../jellyfish/src/
 
-LIBS += -ljellyfish -lportaudio -ljpeg -lpng -lfftw3 -lsndfile -llo -ldl -lpthread -lm
+LIBS += -ljellyfish -lportaudio -ljpeg -lpng -lfftw3 -lsndfile -llo -ldl -lpthread -lm -lglut
 
 # assets
 RESOURCES     = pattern-matrix.qrc

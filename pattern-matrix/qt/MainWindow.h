@@ -16,6 +16,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 
+    int dance_colour;
+
 protected:
 
     void update_colours() {
@@ -105,6 +107,100 @@ private slots:
     void eval() {
         interpreter::eval(m_text_editor->toPlainText().toUtf8().constData());
     }
+
+    void keyPressEvent( QKeyEvent *k )
+    {
+      int button_num = -1;
+
+      if (k->key() == Qt::Key_Left) button_num = 3;
+      if (k->key() == Qt::Key_Right) button_num = 5;
+      if (k->key() == Qt::Key_Up) button_num = 1;
+      if (k->key() == Qt::Key_Down) button_num = 7;
+
+      if (button_num == -1) {
+        if (k->text()=="q")  button_num = 0;
+        if (k->text()=="e")  button_num = 2;
+        if (k->text()=="s")  button_num = 4;
+        if (k->text()=="z")  button_num = 6;
+        if (k->text()=="c")  button_num = 8;
+      }
+
+      if (button_num != -1) {
+        m_buttons[button_num%m_buttons.size()]->setChecked(true);
+      }
+      setFocus();
+
+      bool colour_change = false;
+
+      if (k->key() == Qt::Key_Escape) {
+        dance_colour=(dance_colour+1)%4;
+        colour_change = true;
+      }
+      if (k->key() == Qt::Key_Return) {
+        dance_colour=(dance_colour-1)%4;
+        if (dance_colour<0) dance_colour=3;
+        colour_change = true;
+      }
+
+      if (colour_change) {
+        switch (dance_colour) {
+        case 0:
+          m_weft_colour[0] = QColor(255,255,0);
+          m_weft_colour[1] = QColor(0,0,255);
+          m_warp_colour[0] = QColor(255,255,0);
+          m_warp_colour[1] = QColor(0,0,255);
+          break;
+        case 1:
+          m_weft_colour[0] = QColor(255,255,0);
+          m_weft_colour[1] = QColor(0,0,255);
+          m_warp_colour[0] = QColor(0,0,255);
+          m_warp_colour[1] = QColor(255,255,0);
+          break;
+        case 2:
+          m_weft_colour[0] = QColor(255,255,0);
+          m_weft_colour[1] = QColor(255,255,0);
+          m_warp_colour[0] = QColor(0,0,255);
+          m_warp_colour[1] = QColor(0,0,255);
+          break;
+        case 3:
+          m_weft_colour[0] = QColor(255,255,0);
+          m_weft_colour[1] = QColor(255,255,0);
+          m_warp_colour[0] = QColor(0,0,255);
+          m_warp_colour[1] = QColor(0,0,255);
+          break;
+        }
+
+        update_colours();
+      }
+
+    }
+
+    void keyReleaseEvent( QKeyEvent *k )
+    {
+      int button_num = -1;
+
+      if (k->key() == Qt::Key_Left) button_num = 3;
+      if (k->key() == Qt::Key_Right) button_num = 5;
+      if (k->key() == Qt::Key_Up) button_num = 1;
+      if (k->key() == Qt::Key_Down) button_num = 7;
+
+      if (button_num == -1) {
+        if (k->text()=="q")  button_num = 0;
+        if (k->text()=="e")  button_num = 2;
+        if (k->text()=="s")  button_num = 4;
+        if (k->text()=="z")  button_num = 6;
+        if (k->text()=="c")  button_num = 8;
+      }
+
+      if (button_num != -1) {
+        m_buttons[button_num%m_buttons.size()]->setChecked(false);
+      }
+      setFocus();
+
+    }
+
+
+
 
 private:
     Ui_MainWindow m_Ui;

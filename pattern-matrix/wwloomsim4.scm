@@ -75,7 +75,7 @@
      (program-jelly speed prim-triangles weft-program)
      (hint-unlit)
      (hint-wire)
-     (texture (load-texture "thread.png"))
+    ;; (texture (load-texture "thread.png"))
      (cond
       ((zero? id)
        (scale weave-scale)
@@ -115,7 +115,7 @@
      (program-jelly
       800 prim-triangles (load-code "warp.jelly"))
      (hint-unlit)
-     (texture (load-texture "thread.png"))
+    ; (texture (load-texture "thread.png"))
      (scale weave-scale)
      (pdata-index-map! (lambda (i t)
                          (cond
