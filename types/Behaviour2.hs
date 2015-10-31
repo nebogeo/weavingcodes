@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances,OverlappingInstances, NoMonomorphismRestriction #-}
 
 
-module Behaviour where
+module Behaviour2 where
 
 import Data.List
 import Control.Concurrent (threadDelay)
@@ -17,12 +17,6 @@ import Diagrams.Backend.SVG.CmdLine
 
 data Action = Pull Int | TurnIn | TurnOut | Over | Under
 
-data Move = TurnLeft | TurnRight | Straight
-instance Show Move where
-  show TurnLeft = "turn left"
-  show TurnRight = "turn right"
-  show Straight = "straight"
-
 instance Show Action where
   show (Pull n) = "pull " ++ show n
   show TurnIn = "turn in"
@@ -30,9 +24,36 @@ instance Show Action where
   show Over = "over"
   show Under = "under"
 
+instance Eq Action where
+  (==) TurnIn TurnIn = True
+  (==) TurnOut TurnOut = True
+  (==) Over Over = True
+  (==) Under Under = True
+  (==) (Pull a) (Pull b) = a == b
+  (==) _ _ = False
+
+data Move = TurnLeft | TurnRight | Straight
+instance Show Move where
+  show TurnLeft = "turn left"
+  show TurnRight = "turn right"
+  show Straight = "straight"
+
 type Weave = [Action]
 
 type Grid = [[String]]
+
+data OddEven = Odd | Even
+instance Eq OddEven where
+  (==) Odd Even = False
+  (==) Even Odd = False
+  (==) _   _    = True
+
+instance Show OddEven where
+  show Odd = "odd"
+  show Even = "even"
+
+next Odd = Even
+next Even = Odd
 
 instance Show Grid
    where show g = concat $ intercalate ["\n"] g
@@ -51,6 +72,8 @@ instance Show State
    where show (g,p,m,d) = show g ++ "\n" ++ show p ++ ", " ++ show m ++ ", "
                             ++ show d ++ ", "
 
+turnBack = [TurnOut,TurnIn]
+
 warp :: Int -> Int -> Weave
 warp n l = take (n*3) $ cycle [Pull l,TurnOut,TurnIn]
 
@@ -59,11 +82,17 @@ thread _ 0 _ = []
 thread _ _ 0 = []
 thread actions l r = take l (cycle actions) ++ [TurnOut,TurnIn] ++ thread (take (length actions) $ drop l (cycle actions)) l (r-1)
 
+{-The thread can't follow a simple twill without having state, because
+it needs to
+- reverse the pattern each time
+- but rotate the pattern with respect to the original pattern
+-}
+
 threadWeftBy :: ([Action] -> [Action]) -> [Action] -> Int -> Int -> Weave
 threadWeftBy _ _ 0 _ = []
 threadWeftBy _ _ _ 0 = []
 threadWeftBy f actions l r =
-  take l (cycle actions) ++ [TurnOut,TurnIn] ++ threadWeftBy f (take (length actions) $ drop l (cycle $ f $ reverse $ actions)) l (r-1)
+  take l (cycle actions) ++ [TurnOut,TurnIn] ++ threadWeftBy f (take (length actions) $ drop l (cycle $ reverse $ f $ actions)) l (r-1)
 
 threadWeftBy' :: [[Action] -> [Action]] -> [[Action]] -> Int -> Int -> Weave
 threadWeftBy' _ _ 0 _ = []
@@ -75,13 +104,31 @@ threadWeftBy' (f:fs) (actions:actionss) l r =
                    (actionss ++ [take (length actions) $ drop l $ (cycle $ reverse $ f $ actions)])
                    l (r-1)
 
+threadWeftBy'' :: OddEven -> ([Action] -> [Action]) -> [Action] -> Int -> Int -> Weave
+threadWeftBy'' _ _ _ 0 _ = []
+threadWeftBy'' _ _ _ _ 0 = []
+threadWeftBy'' s f actions l r =
+  take l (cycle $ reverseEven actions) ++ [TurnOut,TurnIn] ++ threadWeftBy'' (next s) f (take (length actions) $ drop l (cycle $ f $ actions)) l (r-1)
+  where reverseEven | s == Even = reverse
+                    | otherwise = id
+
+on :: [Action] -> (Int -> [Action]) -> [Action] -> [Action]
+on find f as = look 0 as
+  where look _ [] = []
+        look n as | find == take l as = f n ++ (look (n+1) (drop l as))
+                  | otherwise = head as : (look n (tail as))
+        l = length find
+
+weftToWarp l = on turnBack (\n -> if even n then (concat [[Pull l], turnBack, [Pull l]]) else turnBack)
+
 rot :: Int -> [a] -> [a]
 rot 0 xs = xs
 rot n xs | n >= 0 = rot (n-1) $ tail xs ++ [head xs]
          | otherwise = rot (n+1) $ reverse $ tail (reverse xs) ++ [head $ reverse xs]
 
 tabby :: Int -> Int -> Weave
-tabby h w = warp h w ++ [TurnIn] ++ thread ([Over,Under]) h w
+-- tabby h w = warp h w ++ [TurnIn] ++ thread ([Over,Under]) h w
+tabby h w = warp h w ++ [TurnIn] ++ threadWeftBy (rot 1) ([Over,Under]) h w
 
 twill x = threadWeftBy' [rot 1, rot 2] [x]
 
@@ -214,3 +261,7 @@ w = draw' TurnLeft (twill4 16 16)
 
 
 
+-- twistTwill = draw 20 $ warp 8 8 ++ [TurnIn] ++ (weftToWarp 8 $ threadWeftBy'' Odd (rot 1) ([Over,Over,Under,Under]) 8 8)
+
+
+-- drawIO 20 $ [TurnOut,TurnIn,TurnOut,Pull 8,TurnIn,Pull 1] ++ warp 8 9 ++ [TurnIn] ++ (weftToWarp 6 $ threadWeftBy'' Odd (rot 1) ([Over,Over,Under,Under]) 8 9) ++ [TurnOut,TurnIn,TurnIn] ++ (threadWeftBy'' Odd (rot 1) [Over,Under] 10 6)
