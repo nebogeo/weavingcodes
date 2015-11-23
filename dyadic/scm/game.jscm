@@ -56,6 +56,9 @@
 
 (define (build-interface)
   (let ((c ($ "#heddles") ))
+    (c.append "warp colours: <input id='warp-cols' type='text' value='YyP'/> L,D,Y,P (& lowercase) <br/>")
+    (c.append "weft colours: <input id='weft-cols' type='text' value='PpYP'/> L,D,Y,P (& lowercase) <br/>")
+
     (c.append "Heddles<br/>")
     (build-line "heddle-1" c (list 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1)) (c.append "<br/>")
     (build-line "heddle-2" c (list 0 1 0 0 0 0 1 0 0 1 0 0 0 0 1 0 0 1 0 0 0 0 1 0)) (c.append "<br/>")
@@ -103,7 +106,35 @@
     (let ((w ($ (string-append "#" id "-" c))))
       (append (read-line id (- c 1)) (if (js "w[0].checked") 1 0))))))
 
+(define (read-text id)
+  (let ((w ($ (string-append "#" id))))
+    (js "w[0].value") ))
+
+(define (string-to-list str c)
+  (if (>= c str.length)
+      (list)
+      (cons (js "str[c]") (string-to-list str (+ c 1)))))
+
+
+(define (colcode-to-list colcode)
+  (if (eq? colcode "")
+      (list "fat")
+      (map
+       (lambda (s)
+         (cond
+          ((eq? s "L") "fat")
+          ((eq? s "l") "thin")
+          ((eq? s "D") "fat-dark")
+          ((eq? s "d") "thin-dark")
+          ((eq? s "P") "fat-pink")
+          ((eq? s "p") "thin-pink")
+          ((eq? s "Y") "fat-yellow")
+          ((eq? s "y") "thin-yellow")
+          (else "thin")))
+       (string-to-list colcode 0))))
+
 (define (update)
+  (console.log (read-text "warp-cols"))
   (set! l (loom
            (list
             (read-line "heddle-1" 24)
@@ -115,9 +146,9 @@
             31 (lambda (i)
                  (read-line (string-append "lift-" (+ i 1)) 4)))
 
-           (repeat (list "fat" "fat-dark") 13)))
+           (max-repeat (colcode-to-list (read-text "warp-cols")) 24)))
   (set! weave
-        (loom-weave l (repeat (list "fat" "fat-dark" ) 15) 0))
+        (loom-weave l (max-repeat (colcode-to-list (read-text "weft-cols")) 31) 0))
   )
 
 (define update-tick 0)
@@ -154,6 +185,16 @@
    "thr-weft-fat.png"
    "thr-warp-fat-dark.png"
    "thr-weft-fat-dark.png"
+   "thr-warp-thin-dark.png"
+   "thr-weft-thin-dark.png"
+   "thr-warp-fat-pink.png"
+   "thr-weft-fat-pink.png"
+   "thr-warp-thin-pink.png"
+   "thr-weft-thin-pink.png"
+   "thr-warp-fat-yellow.png"
+   "thr-weft-fat-yellow.png"
+   "thr-warp-thin-yellow.png"
+   "thr-weft-thin-yellow.png"
    "tog-off.png"
    "tog-on.png"
    ))

@@ -72,7 +72,7 @@
   (let ((p (build-jellyfish jelly-primsize)))
     (with-primitive
      p
-     (program-jelly speed prim-triangles weft-program)
+     (program-jelly speed prim-triangles 1 weft-program)
      (hint-unlit)
      (hint-wire)
     ;; (texture (load-texture "thread.png"))
@@ -113,7 +113,7 @@
     (with-primitive
      r
      (program-jelly
-      800 prim-triangles (load-code "warp.jelly"))
+      800 prim-triangles 1 (load-code "warp.jelly"))
      (hint-unlit)
     ; (texture (load-texture "thread.png"))
      (scale weave-scale)

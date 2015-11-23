@@ -145,6 +145,14 @@
           (if (eq? (card-angle card) "z") "z" "s"))
       "i"))
 
+(define (list-to-decimal l)
+  (define result 0)
+  (index-for-each
+   (lambda (i e)
+      (set! result (+ result (* (Math.pow 2 i) e))))
+   l)
+  result)
+
 (define (card-loom-weave-top loom)
   (define canvas (document.getElementById "canvas"))
   (define ctx (canvas.getContext "2d"))
@@ -193,6 +201,19 @@
        (ctx.drawImage (find-image (string-append "tabwarp-" direction "-" colour ".png"))
                       (+ (* i 7) 280) pos)))
    (card-loom-cards loom))
+
+  ;; get binary
+  (set! ctx.fillStyle "#000")
+  (ctx.fillText
+   (list-to-decimal
+    (foldl
+     (lambda (card r)
+       (cons (if (eq? (car (card-weave card)) "#") 0 1) r))
+     ()
+     (card-loom-cards loom)))
+   650 (+ pos 12))
+
+
   (index-for-each
    (lambda (i card)
      (let ((direction (card-to-direction card))
@@ -344,6 +365,9 @@
 (define loom
   (card-loom
    (list
+    (card "z"
+          "#" "#"
+          "." ".")
     (card "z"
           "#" "#"
           "." ".")

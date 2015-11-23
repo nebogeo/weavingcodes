@@ -28,6 +28,13 @@
     ((zero? rep) seq)
     (else (append seq (repeat seq (- rep 1))))))
 
+(define (max-repeat seq max-rep)
+  (define (_ r)
+    (cond
+     ((> (length r) max-rep) r)
+     (else (_ (append r seq)))))
+  (_ ()))
+
 ;; a loom consists of heddles, a lift plan and a warp sequence
 (define (loom heddles lifts warp) (list heddles lifts warp))
 (define (loom-heddles l) (list-ref l 0))
