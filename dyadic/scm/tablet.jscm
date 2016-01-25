@@ -153,6 +153,15 @@
    l)
   result)
 
+(define (code-to-col code)
+  (cond
+   ((eq? code "b") "#000")
+   ((eq? code "w") "#fff")
+   ((eq? code "r") "#ff0000")
+   ((eq? code "y") "#ff7700")
+   (else "#000")))
+
+
 (define (card-loom-weave-top loom)
   (define canvas (document.getElementById "canvas"))
   (define ctx (canvas.getContext "2d"))
@@ -166,25 +175,25 @@
 
        (ctx.beginPath)
        (ctx.arc (+ x 2) (+ pos 2) 2 (* Math.PI 2) #f)
-       (set! ctx.fillStyle (if (eq? (card-a card) "#") "#000" "#fff"))
+       (set! ctx.fillStyle (code-to-col (card-a card)))
        (ctx.fill)
        (ctx.closePath)
 
        (ctx.beginPath)
        (ctx.arc (+ x 8) (+ pos 2) 2 (* Math.PI 2) #f)
-       (set! ctx.fillStyle (if (eq? (card-b card) "#") "#000" "#fff"))
+       (set! ctx.fillStyle (code-to-col (card-b card)))
        (ctx.fill)
        (ctx.closePath)
 
        (ctx.beginPath)
        (ctx.arc (+ x 8) (+ pos 8) 2 (* Math.PI 2) #f)
-       (set! ctx.fillStyle (if (eq? (card-c card) "#") "#000" "#fff"))
+       (set! ctx.fillStyle (code-to-col (card-c card)))
        (ctx.fill)
        (ctx.closePath)
 
        (ctx.beginPath)
        (ctx.arc (+ x 2) (+ pos 8) 2 (* Math.PI 2) #f)
-       (set! ctx.fillStyle (if (eq? (card-d card) "#") "#000" "#fff"))
+       (set! ctx.fillStyle (code-to-col (card-d card)))
        (ctx.fill)
        (ctx.closePath)
 
@@ -197,7 +206,12 @@
   (index-for-each
    (lambda (i card)
      (let ((direction (card-to-direction card))
-           (colour (if (eq? (car (card-weave card)) "#") "black" "white")))
+           (colour (cond
+                    ((eq? (cadr (card-weave card)) "b") "black")
+                    ((eq? (cadr (card-weave card)) "w") "white")
+                    ((eq? (cadr (card-weave card)) "r") "red")
+                    ((eq? (cadr (card-weave card)) "y") "yellow")
+                    (else "black"))))
        (ctx.drawImage (find-image (string-append "tabwarp-" direction "-" colour ".png"))
                       (+ (* i 7) 280) pos)))
    (card-loom-cards loom))
@@ -208,7 +222,7 @@
    (list-to-decimal
     (foldl
      (lambda (card r)
-       (cons (if (eq? (car (card-weave card)) "#") 0 1) r))
+       (cons (if (eq? (car (card-weave card)) "b") 0 1) r))
      ()
      (card-loom-cards loom)))
    650 (+ pos 12))
@@ -217,7 +231,12 @@
   (index-for-each
    (lambda (i card)
      (let ((direction (card-to-direction card))
-           (colour (if (eq? (cadr (card-weave card)) "#") "black" "white")))
+           (colour (cond
+                    ((eq? (cadr (card-weave card)) "b") "black")
+                    ((eq? (cadr (card-weave card)) "w") "white")
+                    ((eq? (cadr (card-weave card)) "r") "red")
+                    ((eq? (cadr (card-weave card)) "y") "yellow")
+                    (else "black"))))
        (ctx.drawImage (find-image (string-append "tabwarp-" direction "-" colour ".png"))
                       (+ (* i 7) 450) pos)))
    (card-loom-cards loom))
@@ -253,10 +272,36 @@
        loom commands)
       (- c 1) commands))))
 
+(define (build-tablets count)
+  (card-loom
+   (build-list
+    count
+    (lambda ()
+      (card "z"
+            "b" "r"
+            "y" "w")))))
+
+(define (thread-tablets count a b c d)
+  (card-loom
+   (build-list
+    count
+    (lambda ()
+      (card "z" a b c d)))))
+
+
 (define (card-loom-interpret loom command)
   (cond
     ((list? command)
      (cond
+      ((eq? (car command) "build_tablets")
+       (build-tablets (cadr command)))
+      ((eq? (car command) "thread_tablets")
+       (msg command)
+       (thread-tablets (cadr command)
+                      (list-ref command 2)
+                      (list-ref command 3)
+                      (list-ref command 4)
+                      (list-ref command 5)))
       ((eq? (car command) "weave_forward")
        (card-loom-multi loom card-loom-all-forward (cadr command)))
       ((eq? (car command) "weave_back")
@@ -364,65 +409,10 @@
 
 (define loom
   (card-loom
-   (list
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
-    (card "z"
-          "#" "#"
-          "." ".")
+   (build-list
+    8
+    (lambda ()
+      (card "z"
+            "b" "r"
+            "y" "w"))
     )))
