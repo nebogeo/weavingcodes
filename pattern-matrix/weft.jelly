@@ -18,15 +18,14 @@
       (draft-size 5)
       (weaving 0)
       (last-weft-seq -1)
-      (selvedge-gap (vector 0 4.5 0))
-      (draft-addr normals-start))
+      (selvedge-gap (vector 0 4.5 0)))
 
   ;(trace (addr selvedge-gap))
 
   (define read-draft
     (lambda ()
       (read
-       (+ draft-addr
+       (+ (addr draft)
           (+ (* draft-pos draft-size)
              (modulo (if (> weft-direction 0)
                          (+ weft-count 1)

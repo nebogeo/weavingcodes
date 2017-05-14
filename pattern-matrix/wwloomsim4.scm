@@ -1,15 +1,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; weavecoding raspberry pi installation
 
-(synth-init "fluxa" 44100 2048 20)
+(synth-init 10 22010)
 
 (clear-colour (vector 1 1 1))
 
 (define weave-scale (vector 0.4 -0.4 0.4))
 
-(define yarn-a (vector 0.8 0.6 0.2))
+(define yarn-a (vector 0.2 0.2 0.2))
 (define yarn-b (vector 1 1 1))
-(define yarn-c (vector 0.9 0.9 0.2))
+(define yarn-c (vector 0.8 0.2 0.1))
 (define yarn-d (vector 0.3 0.3 1.0))
 
 (define warp-yarn-a (list yarn-b yarn-b))
@@ -24,16 +24,16 @@
 (define warp-yarn-d (list yarn-d yarn-d))
 (define weft-yarn-d (list yarn-d yarn-b))
 
-(define warp-yarn-e (list yarn-a yarn-b yarn-c yarn-c))
-(define weft-yarn-e (list yarn-c yarn-b))
+(define warp-yarn-e (list yarn-a yarn-a yarn-c yarn-c))
+(define weft-yarn-e (list yarn-c yarn-a))
 
-(define warp-yarn-f (list yarn-a yarn-a yarn-c yarn-c))
-(define weft-yarn-f (list yarn-a yarn-c))
+(define warp-yarn-f (list yarn-b yarn-b yarn-c))
+(define weft-yarn-f (list yarn-b yarn-c))
 
-(define warp-yarn-g (list yarn-a yarn-b yarn-b yarn-b))
-(define weft-yarn-g (list yarn-a yarn-c))
+(define warp-yarn-g (list yarn-b yarn-a yarn-a yarn-c))
+(define weft-yarn-g (list yarn-b yarn-c))
 
-(define warp-yarn-h (list yarn-b yarn-b))
+(define warp-yarn-h (list yarn-c yarn-c yarn-b))
 (define weft-yarn-h (list yarn-d yarn-b))
 
 
@@ -48,8 +48,9 @@
 (define addr-weft-seq 12)
 (define addr-weft-draft-pos 13)
 (define addr-weft-id 14)
-(define addr-weft-draft-size 18)
-(define addr-weft-selvedge-gap 21)
+(define addr-weft-draft 15)
+(define addr-weft-draft-size 43)
+(define addr-weft-selvedge-gap 46)
 
 (define addr-warp-draft-t 11)
 (define addr-warp-draft-pos 12)
@@ -72,10 +73,10 @@
   (let ((p (build-jellyfish jelly-primsize)))
     (with-primitive
      p
-     (program-jelly speed prim-triangles 1 weft-program)
+     (program-jelly speed prim-triangles weft-program)
      (hint-unlit)
      (hint-wire)
-    ;; (texture (load-texture "thread.png"))
+     (texture (load-texture "thread.png"))
      (cond
       ((zero? id)
        (scale weave-scale)
@@ -95,8 +96,7 @@
                           ((eqv? (modulo i 6) 5) (vector 0 1 0))
                           )) "t")
      (pdata-map! (lambda (c) yarn) "c")
-;     (pdata-map! (lambda (n) (vector 0 0 0)) "n")
-     )
+     (pdata-map! (lambda (n) (vector 0 0 0)) "n"))
     p))
 
 (define (set-warp-yarn! loom yarn)
@@ -113,9 +113,9 @@
     (with-primitive
      r
      (program-jelly
-      800 prim-triangles 1 (load-code "warp.jelly"))
+      800 prim-triangles (load-code "warp.jelly"))
      (hint-unlit)
-    ; (texture (load-texture "thread.png"))
+     (texture (load-texture "thread.png"))
      (scale weave-scale)
      (pdata-index-map! (lambda (i t)
                          (cond
@@ -126,7 +126,7 @@
                           ((eqv? (modulo i 6) 4) (vector 10 1 0))
                           ((eqv? (modulo i 6) 5) (vector 10 0 0))
                           )) "t")
-;     (pdata-map! (lambda (n) (vector 0 0 0)) "n")
+     (pdata-map! (lambda (n) (vector 0 0 0)) "n")
      )
     r))
 
@@ -160,15 +160,15 @@
 
 (define (set-draft! start data)
   (when (not (null? data))
-     (pdata-set! "n" start
-         (if (zero? (car data))
-             (vector 0 0 0) (vector 1 0 0)))
-     (set-draft! (+ start 1) (cdr data))))
+	(pdata-set! "x" start
+		    (if (zero? (car data))
+			(vector 0 0 0) (vector 1 0 0)))
+	(set-draft! (+ start 1) (cdr data))))
 
 (define (set-draft-all! loom data)
   (for-each
    (lambda (weft)
-     (with-primitive weft (set-draft! 10 data)))
+     (with-primitive weft (set-draft! addr-weft-draft data)))
    (loom-wefts loom))
   (with-primitive (loom-warp loom) (set-draft! addr-warp-draft data)))
 
@@ -190,16 +190,6 @@
              )))
    old-data data)
   (set! old-data data))
-
-(define (loom-update-size! loom size data)
-  (set! draft-size size)
-  (for-each
-   (lambda (weft)
-     (addr-set! weft addr-weft-draft-size size))
-   (loom-wefts loom))
-  (addr-set! (loom-warp loom) addr-warp-draft-size size)
-  (set-draft-all!
-   loom data))
 
 (define (loom-update! loom data)
   (sound-from-changes data)
@@ -285,7 +275,7 @@
 
 (define start-pattern
   (list
-   1 0 0 0 1
+   0 0 0 0 1
    0 0 0 1 0
    0 0 1 0 0
    0 1 0 0 0

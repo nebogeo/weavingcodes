@@ -11,8 +11,7 @@
       (d-k 0) (d-l 0) (d-m 1) (d-n 0) (d-o 0)
       (d-p 0) (d-q 1) (d-r 0) (d-s 0) (d-t 0)
       (d-u 1) (d-v 0) (d-w 0) (d-x 0) (d-y 0)
-      (last-t 0)
-      (draft-addr (+ normals-start 10)))
+      (last-t 0))
 
       ;;(trace (addr draft-size))
 
@@ -28,7 +27,7 @@
       ;; like weft but don't need to take account of direction
       (define read-draft
         (lambda ()
-          (read (+ draft-addr
+          (read (+ (addr draft)
                    (+ (* draft-pos draft-size)
                       (modulo (+ warp-end 1)
                               (+ draft-size (vector 0 1 1)) ))))))

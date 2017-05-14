@@ -25,7 +25,7 @@
 (define squeeze
   (with-state
    (scale (vector 0.08 0.08 0.08))
-   (rotate (vector 0 0 90))
+   (rotate (vector 0 90 90))
    (translate (vector -30 0 0))
    (build-jellyfish prim-size)))
 
@@ -249,7 +249,9 @@
 
             ;; finished, so loop forever
             (when (> seq-pos seq-size)
-                  (forever))
+                  (set! seq-pos 0)
+                  ;;(forever)
+                  )
 
             ;; record the current pos and rotation
             (set! last-pos pos)
@@ -260,7 +262,7 @@
       ))
 
  ;; back to normal scheme
- (hint-unlit)
+ ;(hint-unlit)
  (hint-wire)
  (pdata-map! (lambda (c) (vector 1 1 1)) "c")
  (pdata-map! (lambda (n) (vector 0 0 0)) "n")
@@ -320,7 +322,7 @@ out,turn in")
    '()
    (string-split incode (list #\,))))
 
-;;(define seqcode '(3 4 1 1 3 4))
+;(define seqcode '(0 2 1 2 2 1 1 1 0 2 1 0 0 2))
 
 (msg seqcode)
 
