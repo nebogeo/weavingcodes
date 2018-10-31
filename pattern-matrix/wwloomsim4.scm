@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; weavecoding raspberry pi installation
 
-(synth-init 10 22010)
+(synth-init "fluxa" 5 44100 2048 30)
 
 (clear-colour (vector 1 1 1))
 

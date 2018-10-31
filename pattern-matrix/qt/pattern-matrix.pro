@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET =
+TARGET = pattern-matrix
 DEPENDPATH += . 2
 INCLUDEPATH += . 2
 

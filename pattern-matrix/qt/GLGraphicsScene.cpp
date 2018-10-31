@@ -51,28 +51,27 @@ void GLGraphicsScene::drawBackground(QPainter* painter, const QRectF& rect) {
 
     bool m_MotionBlur=false;
 
-	if (m_MotionBlur)
-	{
-		glEnable(GL_COLOR_MATERIAL);
-		glPolygonMode(GL_FRONT,GL_FILL);
-		glDisable(GL_DEPTH_TEST);
-		glPushMatrix();
-		glTranslatef(0,0,-10);
-		glBegin(GL_QUADS);
-        glColor4f(0,0,0,0.1f);
-			glVertex3f(-10,-10,0);
-			glVertex3f(10,-10,0);
-			glVertex3f(10,10,0);
-			glVertex3f(-10,10,0);
-		glEnd();
-		glPopMatrix();
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_COLOR_MATERIAL);
-	} else {
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+    if (m_MotionBlur) {
+      glEnable(GL_COLOR_MATERIAL);
+      glPolygonMode(GL_FRONT,GL_FILL);
+      glDisable(GL_DEPTH_TEST);
+      glPushMatrix();
+      glTranslatef(0,0,-10);
+      glBegin(GL_QUADS);
+      glColor4f(0,0,0,0.1f);
+      glVertex3f(-10,-10,0);
+      glVertex3f(10,-10,0);
+      glVertex3f(10,10,0);
+      glVertex3f(-10,10,0);
+      glEnd();
+      glPopMatrix();
+      glEnable(GL_DEPTH_TEST);
+      glDisable(GL_COLOR_MATERIAL);
+    } else {
+      glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+      glClear(GL_COLOR_BUFFER_BIT);
     }
-
+    
     // on the safe side...
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     graphics::render(rect.width(),rect.height());

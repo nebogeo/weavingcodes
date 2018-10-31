@@ -6,5 +6,7 @@
     <file>images/yellowdot.png</file>
     <file>images/white.png</file>
     <file>images/black.png</file>
+    <file>images/wsquare.png</file>
+    <file>images/bsquare.png</file>
   </qresource>
 </RCC>

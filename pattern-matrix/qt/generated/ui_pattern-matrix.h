@@ -1,14 +1,13 @@
 /********************************************************************************
-** Form generated from reading UI file 'pattern-matrixMz4993.ui'
+** Form generated from reading UI file 'pattern-matrixjIV945.ui'
 **
-** Created: Tue Jul 21 13:28:26 2015
-**      by: Qt User Interface Compiler version 4.8.1
+** Created by: Qt User Interface Compiler version 4.8.6
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef PATTERN_2D_MATRIXMZ4993_H
-#define PATTERN_2D_MATRIXMZ4993_H
+#ifndef PATTERN_2D_MATRIXJIV945_H
+#define PATTERN_2D_MATRIXJIV945_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -35,25 +34,29 @@ public:
     QHBoxLayout *horizontalLayout;
     QTabWidget *tabWidget;
     QWidget *tab;
-    QHBoxLayout *horizontalLayout_3;
+    QHBoxLayout *horizontalLayout_7;
     QVBoxLayout *verticalLayout;
-    QHBoxLayout *horizontalLayout_2;
+    QHBoxLayout *horizontalLayout_6;
     QLabel *label;
     QSpinBox *spinBoxWarp;
+    QSpacerItem *horizontalSpacer_6;
+    QHBoxLayout *horizontalLayout_3;
     QLabel *label_2;
     QPushButton *pushButtonWeft1;
     QPushButton *pushButtonWeft2;
+    QSpacerItem *horizontalSpacer_5;
+    QHBoxLayout *horizontalLayout_2;
     QLabel *label_3;
     QPushButton *pushButtonWarp1;
     QPushButton *pushButtonWarp2;
     QSpacerItem *horizontalSpacer_3;
     QGridLayout *gridLayout;
+    QSpacerItem *horizontalSpacer;
     QVBoxLayout *verticalLayout_2;
     QSpacerItem *verticalSpacer;
-    QSpacerItem *horizontalSpacer_2;
     QSpacerItem *verticalSpacer_2;
-    QSpacerItem *horizontalSpacer;
     QVBoxLayout *verticalLayoutMatrix;
+    QSpacerItem *horizontalSpacer_2;
     QWidget *tab_2;
     QHBoxLayout *horizontalLayout_5;
     QVBoxLayout *verticalLayout_3;
@@ -61,7 +64,9 @@ public:
     QHBoxLayout *horizontalLayout_4;
     QPushButton *pushButtonEval;
     QSpacerItem *horizontalSpacer_4;
+    QVBoxLayout *verticalLayout_4;
     QVBoxLayout *verticalLayoutLoom;
+    QSpacerItem *horizontalSpacer_7;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -76,38 +81,56 @@ public:
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
-        horizontalLayout_3 = new QHBoxLayout(tab);
-        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        horizontalLayout_7 = new QHBoxLayout(tab);
+        horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
         verticalLayout = new QVBoxLayout();
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        horizontalLayout_2 = new QHBoxLayout();
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        horizontalLayout_6 = new QHBoxLayout();
+        horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         label = new QLabel(tab);
         label->setObjectName(QString::fromUtf8("label"));
 
-        horizontalLayout_2->addWidget(label);
+        horizontalLayout_6->addWidget(label);
 
         spinBoxWarp = new QSpinBox(tab);
         spinBoxWarp->setObjectName(QString::fromUtf8("spinBoxWarp"));
         spinBoxWarp->setValue(4);
 
-        horizontalLayout_2->addWidget(spinBoxWarp);
+        horizontalLayout_6->addWidget(spinBoxWarp);
 
+        horizontalSpacer_6 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_6->addItem(horizontalSpacer_6);
+
+
+        verticalLayout->addLayout(horizontalLayout_6);
+
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         label_2 = new QLabel(tab);
         label_2->setObjectName(QString::fromUtf8("label_2"));
 
-        horizontalLayout_2->addWidget(label_2);
+        horizontalLayout_3->addWidget(label_2);
 
         pushButtonWeft1 = new QPushButton(tab);
         pushButtonWeft1->setObjectName(QString::fromUtf8("pushButtonWeft1"));
 
-        horizontalLayout_2->addWidget(pushButtonWeft1);
+        horizontalLayout_3->addWidget(pushButtonWeft1);
 
         pushButtonWeft2 = new QPushButton(tab);
         pushButtonWeft2->setObjectName(QString::fromUtf8("pushButtonWeft2"));
 
-        horizontalLayout_2->addWidget(pushButtonWeft2);
+        horizontalLayout_3->addWidget(pushButtonWeft2);
 
+        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_3->addItem(horizontalSpacer_5);
+
+
+        verticalLayout->addLayout(horizontalLayout_3);
+
+        horizontalLayout_2 = new QHBoxLayout();
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         label_3 = new QLabel(tab);
         label_3->setObjectName(QString::fromUtf8("label_3"));
 
@@ -132,6 +155,10 @@ public:
 
         gridLayout = new QGridLayout();
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        gridLayout->addItem(horizontalSpacer, 1, 0, 1, 1);
+
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
@@ -141,30 +168,27 @@ public:
 
         gridLayout->addLayout(verticalLayout_2, 2, 1, 1, 1);
 
-        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        gridLayout->addItem(horizontalSpacer_2, 1, 2, 1, 1);
-
         verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         gridLayout->addItem(verticalSpacer_2, 0, 1, 1, 1);
-
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        gridLayout->addItem(horizontalSpacer, 1, 0, 1, 1);
 
         verticalLayoutMatrix = new QVBoxLayout();
         verticalLayoutMatrix->setObjectName(QString::fromUtf8("verticalLayoutMatrix"));
 
         gridLayout->addLayout(verticalLayoutMatrix, 1, 1, 1, 1);
 
+        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        gridLayout->addItem(horizontalSpacer_2, 1, 2, 1, 1);
+
 
         verticalLayout->addLayout(gridLayout);
 
 
-        horizontalLayout_3->addLayout(verticalLayout);
+        horizontalLayout_7->addLayout(verticalLayout);
 
         tabWidget->addTab(tab, QString());
+        label->raise();
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
         horizontalLayout_5 = new QHBoxLayout(tab_2);
@@ -197,10 +221,20 @@ public:
 
         horizontalLayout->addWidget(tabWidget);
 
+        verticalLayout_4 = new QVBoxLayout();
+        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
         verticalLayoutLoom = new QVBoxLayout();
         verticalLayoutLoom->setObjectName(QString::fromUtf8("verticalLayoutLoom"));
+        verticalLayoutLoom->setSizeConstraint(QLayout::SetMinimumSize);
 
-        horizontalLayout->addLayout(verticalLayoutLoom);
+        verticalLayout_4->addLayout(verticalLayoutLoom);
+
+        horizontalSpacer_7 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        verticalLayout_4->addItem(horizontalSpacer_7);
+
+
+        horizontalLayout->addLayout(verticalLayout_4);
 
         MainWindow->setCentralWidget(centralwidget);
 
@@ -220,7 +254,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Weavecoding Pattern Matrix 0.1", 0, QApplication::UnicodeUTF8));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Weavecoding Pattern Matrix 0.2", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("MainWindow", "Draft size", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("MainWindow", "Weft colours", 0, QApplication::UnicodeUTF8));
         pushButtonWeft1->setText(QString());
@@ -241,4 +275,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // PATTERN_2D_MATRIXMZ4993_H
+#endif // PATTERN_2D_MATRIXJIV945_H

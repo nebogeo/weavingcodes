@@ -110,6 +110,7 @@ private slots:
 
     void keyPressEvent( QKeyEvent *k )
     {
+      /*
       int button_num = -1;
 
       if (k->key() == Qt::Key_Left) button_num = 3;
@@ -172,7 +173,7 @@ private slots:
 
         update_colours();
       }
-
+      */
     }
 
     void keyReleaseEvent( QKeyEvent *k )
@@ -230,8 +231,14 @@ private:
                     QIcon icon;
                     icon.addFile(QString::fromUtf8(":/images/images/black.png"), QSize(), QIcon::Normal, QIcon::Off);
                     icon.addFile(QString::fromUtf8(":/images/images/white.png"), QSize(), QIcon::Normal, QIcon::On);
+                    //icon.addFile(QString::fromUtf8(":/images/images/bsquare.png"), QSize(), QIcon::Normal, QIcon::Off);
+                    //icon.addFile(QString::fromUtf8(":/images/images/wsquare.png"), QSize(), QIcon::Normal, QIcon::On);
                     pushButton->setIcon(icon);
-                    pushButton->setIconSize(QSize(64, 64));
+		    if (m_size>5) {
+		      pushButton->setIconSize(QSize(32, 32));
+		    } else {
+		      pushButton->setIconSize(QSize(64, 64));
+		    }
                     pushButton->setCheckable(true);
                     pushButton->setContentsMargins(0,0,0,0);
                     pushButton->setAutoFillBackground(false);

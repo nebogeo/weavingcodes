@@ -16,7 +16,7 @@ MainWindow::MainWindow()
 
     QGraphicsView *view = new QGraphicsView;
     view->setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
-    view->resize(800,600);
+    view->resize(600,800);
     view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     view->setScene(new GLGraphicsScene());
 
